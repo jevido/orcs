@@ -1,4 +1,4 @@
-import { ServiceProvider } from "../../src/core/ServiceProvider.js";
+import { ServiceProvider } from "../../src/core/service-provider.js";
 import { cors } from "../middleware/cors.js";
 
 export class AppServiceProvider extends ServiceProvider {

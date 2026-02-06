@@ -1,5 +1,5 @@
-import { Route } from "../src/routing/Router.js";
-import { HealthController } from "../app/controllers/HealthController.js";
+import { Route } from "../src/routing/router.js";
+import { HealthController } from "../app/controllers/health-controller.js";
 
 Route.group({ prefix: "/api", tags: ["General"] }, () => {
   Route.get(

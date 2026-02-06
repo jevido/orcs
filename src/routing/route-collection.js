@@ -1,4 +1,4 @@
-import { matchPath } from "./RouteCompiler.js";
+import { matchPath } from "./route-compiler.js";
 
 /**
  * Stores all registered routes and provides lookup by method + path.

@@ -1,8 +1,8 @@
-import { ConfigRepository } from "../config/ConfigRepository.js";
-import { Route } from "../routing/Router.js";
-import { openApiRegistry } from "../openapi/Registry.js";
-import { createServer } from "../http/Server.js";
-import { ExceptionHandler } from "../errors/Handler.js";
+import { ConfigRepository } from "../config/config-repository.js";
+import { Route } from "../routing/router.js";
+import { openApiRegistry } from "../openapi/registry.js";
+import { createServer } from "../http/server.js";
+import { ExceptionHandler } from "../errors/handler.js";
 
 export class Application {
   #providers = [];

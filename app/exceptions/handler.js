@@ -1,4 +1,4 @@
-import { ExceptionHandler } from "../../src/errors/Handler.js";
+import { ExceptionHandler } from "../../src/errors/handler.js";
 
 /**
  * Application-level exception handler.

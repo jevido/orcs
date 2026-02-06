@@ -1,6 +1,6 @@
-import { compilePath } from "./RouteCompiler.js";
-import { RouteCollection } from "./RouteCollection.js";
-import { openApiRegistry } from "../openapi/Registry.js";
+import { compilePath } from "./route-compiler.js";
+import { RouteCollection } from "./route-collection.js";
+import { openApiRegistry } from "../openapi/registry.js";
 
 const collection = new RouteCollection();
 const globalMiddleware = [];

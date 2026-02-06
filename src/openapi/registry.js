@@ -2,7 +2,7 @@ import {
   normalizeRequestBody,
   normalizeResponses,
   normalizeParameters,
-} from "./SchemaBuilder.js";
+} from "./schema-builder.js";
 
 class OpenApiRegistry {
   #paths = {};

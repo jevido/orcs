@@ -1,4 +1,4 @@
-import { HttpException } from "./HttpException.js";
+import { HttpException } from "./http-exception.js";
 
 export class ValidationException extends HttpException {
   constructor(errors = {}, message = "Validation failed") {

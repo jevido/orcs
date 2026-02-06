@@ -37,14 +37,14 @@ Visit:
 orcs/
 ├── app/                          # Your application code
 │   ├── controllers/              # Route handlers organized by resource
-│   │   └── HealthController.js
+│   │   └── health-controller.js
 │   ├── middleware/                # Custom middleware
 │   │   └── cors.js
 │   ├── providers/                # Service providers (boot lifecycle)
-│   │   ├── AppServiceProvider.js
-│   │   └── RouteServiceProvider.js
+│   │   ├── app-service-provider.js
+│   │   └── route-service-provider.js
 │   └── exceptions/               # Error handling
-│       └── Handler.js
+│       └── handler.js
 │
 ├── bootstrap/                    # Application bootstrap
 │   ├── app.js                    # Creates and boots the application
@@ -100,7 +100,7 @@ Route.get(
 
 ```js
 import { Route } from "./src/index.js";
-import { UserController } from "../app/controllers/UserController.js";
+import { UserController } from "../app/controllers/user-controller.js";
 
 Route.group({ prefix: "/api/users", tags: ["Users"] }, () => {
   Route.get(
@@ -195,7 +195,7 @@ requestBody: {
 Controllers are classes with static methods. Each method receives a `ctx` (context) object with everything it needs.
 
 ```js
-// app/controllers/UserController.js
+// app/controllers/user-controller.js
 
 export class UserController {
   static async index(ctx) {
@@ -251,8 +251,8 @@ Middleware uses the onion model. Each middleware receives `ctx` and a `next` fun
 Registered in a service provider, runs on every request:
 
 ```js
-// app/providers/AppServiceProvider.js
-import { ServiceProvider } from "../../src/core/ServiceProvider.js";
+// app/providers/app-service-provider.js
+import { ServiceProvider } from "../../src/core/service-provider.js";
 import { cors } from "../middleware/cors.js";
 
 export class AppServiceProvider extends ServiceProvider {
@@ -346,19 +346,11 @@ Configuration lives in `config/` as plain JavaScript objects with environment va
 | `config/http.js`    | HTTP server settings  | `port`, `idleTimeout`, `cors`     |
 | `config/openapi.js` | OpenAPI document info | `title`, `version`, `description` |
 
-### The `env()` Helper
+### The `env()` Helper doesn't exist
 
-```js
-import { env } from "./src/config/env.js";
+Just write `Bun.env.APP_NAME || 'orcs'`
 
-export default {
-  name: env("APP_NAME", "ORCS"), // string (default: "ORCS")
-  debug: env.bool("APP_DEBUG", true), // boolean
-  port: env.int("PORT", 42069), // integer
-  threshold: env.float("THRESHOLD", 0.5), // float
-  features: env.json("FEATURES", {}), // parsed JSON
-};
-```
+````
 
 ### Environment Variables
 
@@ -370,14 +362,14 @@ APP_ENV=development
 PORT=42069
 CORS_ENABLED=false
 OPENAPI_TITLE="My API"
-```
+````
 
 ## Service Providers
 
 Service providers manage the application boot lifecycle. They are registered in `bootstrap/providers.js`.
 
 ```js
-import { ServiceProvider } from "../../src/core/ServiceProvider.js";
+import { ServiceProvider } from "../../src/core/service-provider.js";
 
 export class AppServiceProvider extends ServiceProvider {
   register() {
@@ -396,8 +388,8 @@ export class AppServiceProvider extends ServiceProvider {
 
 ```js
 // bootstrap/providers.js
-import { AppServiceProvider } from "../app/providers/AppServiceProvider.js";
-import { RouteServiceProvider } from "../app/providers/RouteServiceProvider.js";
+import { AppServiceProvider } from "../app/providers/app-service-provider.js";
+import { RouteServiceProvider } from "../app/providers/route-service-provider.js";
 
 export default [AppServiceProvider, RouteServiceProvider];
 ```
@@ -454,10 +446,10 @@ Validation errors include field details:
 
 ### Custom Exception Handler
 
-Override the default handler in `app/exceptions/Handler.js`:
+Override the default handler in `app/exceptions/handler.js`:
 
 ```js
-import { ExceptionHandler } from "../../src/errors/Handler.js";
+import { ExceptionHandler } from "../../src/errors/handler.js";
 
 export class AppExceptionHandler extends ExceptionHandler {
   render(error, ctx) {
@@ -480,7 +472,7 @@ export class AppExceptionHandler extends ExceptionHandler {
 | Route definitions | `Route::get()` + separate OpenAPI | `Route.get()` with inline OpenAPI |
 | Controllers       | Class with dependency injection   | Class with static methods + ctx   |
 | Models            | Eloquent ORM                      | No ORM (bring your own)           |
-| Configuration     | PHP arrays + `.env`               | JS objects + `env()` helper       |
+| Configuration     | PHP arrays + `.env`               | JS objects + `Bun.env` helper     |
 | CLI               | `php artisan`                     | Planned: `bun orcs`               |
 | Middleware        | Class-based                       | Function-based (onion model)      |
 | Service providers | Full DI container                 | Boot lifecycle only (no DI)       |
@@ -508,7 +500,7 @@ import {
 ## Roadmap
 
 - [ ] Request validation against OpenAPI schemas
-- [ ] `/_docs` endpoint (Swagger UI / Scalar)
+- [ ] `/_docs` endpoint (Swagger UI / Scalar / jevido/openapi-docs)
 - [ ] CLI tooling (`bun orcs serve`, `bun orcs routes`, `bun orcs make:*`)
 - [ ] Database layer (query builder, migrations, seeds)
 - [ ] Authentication middleware and guards

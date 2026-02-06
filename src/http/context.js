@@ -1,4 +1,4 @@
-import { HttpException } from "../errors/HttpException.js";
+import { HttpException } from "../errors/http-exception.js";
 
 export class Context {
   constructor({ req, params = {}, query = {}, body = null, headers = {} }) {
@@ -13,13 +13,6 @@ export class Context {
 
   json(data, status = 200) {
     return Response.json(data, { status });
-  }
-
-  text(data, status = 200) {
-    return new Response(String(data), {
-      status,
-      headers: { "Content-Type": "text/plain" },
-    });
   }
 
   redirect(url, status = 302) {

@@ -1,4 +1,4 @@
-import { openApiRegistry } from "./Registry.js";
+import { openApiRegistry } from "./registry.js";
 
 export function generateOpenApiDocument() {
   const info = openApiRegistry.getInfo();

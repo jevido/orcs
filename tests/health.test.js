@@ -48,6 +48,7 @@ describe("404 handling", () => {
 describe("405 handling", () => {
   test("returns 405 with Allow header for wrong method", async () => {
     const res = await fetch(`${base}/api/health`, { method: "POST" });
+
     expect(res.status).toBe(405);
     expect(res.headers.get("Allow")).toContain("GET");
   });

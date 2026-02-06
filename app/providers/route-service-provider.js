@@ -1,8 +1,8 @@
-import { ServiceProvider } from "../../src/core/ServiceProvider.js";
+import { ServiceProvider } from "../../src/core/service-provider.js";
 
 export class RouteServiceProvider extends ServiceProvider {
   async boot() {
+    // Load API routes only (backend API only)
     await import("../../routes/api.js");
-    await import("../../routes/web.js");
   }
 }

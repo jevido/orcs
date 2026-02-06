@@ -1,5 +1,5 @@
-import { Application } from "../src/core/Application.js";
-import { AppExceptionHandler } from "../app/exceptions/Handler.js";
+import { Application } from "../src/core/application.js";
+import { AppExceptionHandler } from "../app/exceptions/handler.js";
 import providers from "./providers.js";
 
 export async function boot() {

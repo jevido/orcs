@@ -1,5 +1,5 @@
-import { HttpException } from "./HttpException.js";
-import { ValidationException } from "./ValidationException.js";
+import { HttpException } from "./http-exception.js";
+import { ValidationException } from "./validation-exception.js";
 
 export class ExceptionHandler {
   render(error, ctx) {
