@@ -1,0 +1,44 @@
+# === Environment & secrets ===
+.env
+.env.*
+!.env.example
+
+# === Bun ===
+node_modules/
+.bun/
+bun.lockb.tmp
+bun.lockb.bak
+
+# Commit bun.lockb in real projects
+# (remove this line if you want it tracked)
+# bun.lockb
+
+# === Build output ===
+dist/
+build/
+.out/
+.tmp/
+
+# === Runtime data (Laravel-like) ===
+storage/*
+!storage/.gitkeep
+logs/*
+!logs/.gitkeep
+cache/*
+tmp/*
+
+# === Test artifacts ===
+coverage/
+.nyc_output/
+
+# === Debug ===
+*.log
+debug.log
+
+# === IDEs & OS ===
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
