@@ -29,6 +29,7 @@ bun run dev
 Visit:
 
 - `GET http://localhost:42069/api/health` — your first endpoint
+- `GET http://localhost:42069/docs` — interactive API documentation
 - `GET http://localhost:42069/openapi.json` — your auto-generated OpenAPI spec
 
 ## Project Structure
@@ -190,6 +191,70 @@ requestBody: {
 }
 ```
 
+### Request Validation
+
+ORCS automatically validates incoming request bodies against the OpenAPI schema defined in your routes. If validation fails, a structured 422 error is returned.
+
+```js
+Route.post(
+  "/api/users",
+  {
+    requestBody: {
+      email: { type: "string", format: "email" },
+      name: { type: "string", minLength: 2, maxLength: 50 },
+      age: { type: "integer", minimum: 18 },
+    },
+  },
+  UserController.store,
+);
+```
+
+**Valid request:**
+
+```json
+{
+  "email": "john@example.com",
+  "name": "John Doe",
+  "age": 25
+}
+```
+
+→ Passes validation, handler executes
+
+**Invalid request:**
+
+```json
+{
+  "email": "not-an-email",
+  "name": "J",
+  "age": 17
+}
+```
+
+→ Returns 422 with validation errors:
+
+```json
+{
+  "error": "Validation Error",
+  "message": "Validation failed",
+  "errors": {
+    "email": ["must be a valid email address"],
+    "name": ["must be at least 2 characters long"],
+    "age": ["must be at least 18"]
+  }
+}
+```
+
+**Supported validations:**
+
+- **Type**: `string`, `number`, `integer`, `boolean`, `array`, `object`
+- **String**: `minLength`, `maxLength`, `pattern` (regex)
+- **Number**: `minimum`, `maximum`, `multipleOf`, `exclusiveMinimum`, `exclusiveMaximum`
+- **Format**: `email`, `url`, `uri`, `uuid`, `date`, `date-time`
+- **Required fields**: All fields in shorthand `requestBody` are required by default
+
+Validation happens automatically before your handler runs. No need for manual checks or third-party validation libraries.
+
 ## Controllers
 
 Controllers are classes with static methods. Each method receives a `ctx` (context) object with everything it needs.
@@ -308,6 +373,21 @@ export async function timing(ctx, next) {
 ## OpenAPI
 
 OpenAPI is not a bolt-on — it is generated directly from your route definitions.
+
+### Interactive Documentation
+
+Visit `/docs` in your browser for a beautiful, interactive API documentation UI powered by Scalar:
+
+```
+GET /docs
+```
+
+The documentation automatically loads your OpenAPI spec and provides:
+
+- **Try it out** — test your API endpoints directly from the browser
+- **Code examples** — auto-generated request examples in multiple languages
+- **Type definitions** — clear schemas for request/response bodies
+- **Dark mode** — automatically matches your system preferences
 
 ### Accessing the Spec
 
@@ -464,6 +544,69 @@ export class AppExceptionHandler extends ExceptionHandler {
 - **Development**: error responses include stack traces
 - **Production** (`APP_ENV=production`): stack traces are hidden, generic messages for 500s
 
+## CLI Tooling
+
+ORCS includes a command-line interface for common tasks:
+
+```bash
+bun orcs <command> [options]
+```
+
+### Available Commands
+
+**Server Management:**
+
+```bash
+# Start the HTTP server
+bun orcs serve
+```
+
+**Introspection:**
+
+```bash
+# List all registered routes
+bun orcs routes
+```
+
+**Code Generation:**
+
+```bash
+# Generate a new controller
+bun orcs make:controller UserController
+
+# Generate a new middleware
+bun orcs make:middleware auth
+
+# Generate a new service provider
+bun orcs make:provider CacheServiceProvider
+```
+
+### Examples
+
+**Creating a resource controller:**
+
+```bash
+bun orcs make:controller PostController
+```
+
+Generates `app/controllers/post-controller.js` with CRUD methods (index, store, show, update, destroy).
+
+**Creating middleware:**
+
+```bash
+bun orcs make:middleware rateLimit
+```
+
+Generates `app/middleware/rate-limit.js` with the onion model pattern already set up.
+
+**Viewing routes:**
+
+```bash
+bun orcs routes
+```
+
+Displays a formatted table of all registered routes with their methods, paths, and metadata.
+
 ## Comparison with Laravel
 
 | Concept           | Laravel                           | ORCS                              |
@@ -473,7 +616,7 @@ export class AppExceptionHandler extends ExceptionHandler {
 | Controllers       | Class with dependency injection   | Class with static methods + ctx   |
 | Models            | Eloquent ORM                      | No ORM (bring your own)           |
 | Configuration     | PHP arrays + `.env`               | JS objects + `Bun.env` helper     |
-| CLI               | `php artisan`                     | Planned: `bun orcs`               |
+| CLI               | `php artisan`                     | `bun orcs`                        |
 | Middleware        | Class-based                       | Function-based (onion model)      |
 | Service providers | Full DI container                 | Boot lifecycle only (no DI)       |
 | Views             | Blade templates                   | N/A (API-first)                   |
@@ -491,17 +634,19 @@ import {
   HttpException, // Throwable HTTP error
   ValidationException, // 422 with field errors
   ExceptionHandler, // Base error handler
-  env, // Environment variable reader
   abort, // Throw HTTP exception
   generateOpenApiDocument, // Get the full OpenAPI spec
+  Validator, // JSON schema validator
+  createValidationMiddleware, // Create validation middleware from schema
+  createDocsHandler, // Create interactive documentation handler
 } from "./src/index.js";
 ```
 
 ## Roadmap
 
-- [ ] Request validation against OpenAPI schemas
-- [ ] `/_docs` endpoint (Swagger UI / Scalar / jevido/openapi-docs)
-- [ ] CLI tooling (`bun orcs serve`, `bun orcs routes`, `bun orcs make:*`)
+- [x] Request validation against OpenAPI schemas
+- [x] `/docs` endpoint (Swagger UI / Scalar / jevido/openapi-docs)
+- [x] CLI tooling (`bun orcs serve`, `bun orcs routes`, `bun orcs make:*`)
 - [ ] Database layer (query builder, migrations, seeds)
 - [ ] Authentication middleware and guards
 - [ ] Logging system with structured output

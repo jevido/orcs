@@ -7,3 +7,6 @@ export { HttpException } from "./errors/http-exception.js";
 export { ValidationException } from "./errors/validation-exception.js";
 export { ExceptionHandler } from "./errors/handler.js";
 export { generateOpenApiDocument } from "./openapi/generator.js";
+export { Validator } from "./validation/validator.js";
+export { createValidationMiddleware } from "./validation/middleware.js";
+export { createDocsHandler } from "./http/docs-handler.js";

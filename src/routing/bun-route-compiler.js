@@ -1,5 +1,6 @@
 import { Context } from "../http/context.js";
 import { compose } from "../http/middleware.js";
+import { createValidationMiddleware } from "../validation/middleware.js";
 
 /**
  * Compiles ORCS routes into Bun's native routes object format.
@@ -55,8 +56,23 @@ function createBunHandler(route, globalMiddleware) {
       headers: Object.fromEntries(req.headers.entries()),
     });
 
+    // Build middleware stack with automatic validation
+    const middleware = [...globalMiddleware];
+
+    // Auto-inject validation middleware if route has requestBody
+    if (route.meta?.requestBody) {
+      const validationMiddleware = createValidationMiddleware(
+        route.meta.requestBody,
+      );
+      if (validationMiddleware) {
+        middleware.push(validationMiddleware);
+      }
+    }
+
+    // Add route-specific middleware
+    middleware.push(...route.middleware);
+
     // Compose and execute middleware + handler
-    const middleware = [...globalMiddleware, ...route.middleware];
     const dispatch = compose(middleware, route.handler);
     const result = await dispatch(ctx);
 

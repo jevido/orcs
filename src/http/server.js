@@ -1,6 +1,7 @@
 import { compileToBunRoutes } from "../routing/bun-route-compiler.js";
 import { generateOpenApiDocument } from "../openapi/generator.js";
 import { ExceptionHandler } from "../errors/handler.js";
+import { createDocsHandler } from "./docs-handler.js";
 
 /**
  * Creates and starts a Bun HTTP server using native routes object.
@@ -17,6 +18,9 @@ export function createServer(app) {
   // Wrap all route handlers with error handling
   const wrappedRoutes = wrapRoutesWithErrorHandler(bunRoutes, handler);
 
+  // Create docs handler
+  const docsHandler = createDocsHandler(app.config);
+
   const server = Bun.serve({
     port: app.config.get("http.port", 3000),
     idleTimeout: app.config.get("http.idleTimeout", 60),
@@ -26,6 +30,11 @@ export function createServer(app) {
       // OpenAPI spec endpoint (GET only)
       "/openapi.json": {
         GET: Response.json(generateOpenApiDocument()),
+      },
+
+      // API documentation UI (GET only)
+      "/docs": {
+        GET: docsHandler,
       },
 
       // All compiled ORCS routes

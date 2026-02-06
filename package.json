@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "bin": {
+    "orcs": "./bin/orcs.js"
+  },
   "scripts": {
     "format": "prettier --write .",
     "dev": "bun --hot server.js",
     "start": "bun server.js",
-    "test": "bun test"
+    "test": "NODE_ENV=test bun test"
   },
   "devDependencies": {
     "prettier": "^3.8.1"
