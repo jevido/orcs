@@ -5,6 +5,27 @@
  * Uses Bun's native SQL support (PostgreSQL, MySQL, SQLite)
  */
 
+/**
+ * Build a connection URL from individual DB_* environment variables.
+ * Falls back to DATABASE_URL if set, or a default postgres URL.
+ */
+function buildConnectionUrl() {
+  if (Bun.env.DATABASE_URL) {
+    return Bun.env.DATABASE_URL;
+  }
+
+  const protocol = Bun.env.DB_CONNECTION || "postgres";
+  const host = Bun.env.DB_HOST || "localhost";
+  const port = Bun.env.DB_PORT || "5432";
+  const database = Bun.env.DB_DATABASE || "orcs";
+  const user = Bun.env.DB_USER || "";
+  const password = Bun.env.DB_PASSWORD || "";
+
+  const auth = user ? (password ? `${user}:${password}@` : `${user}@`) : "";
+
+  return `${protocol}://${auth}${host}:${port}/${database}`;
+}
+
 export default {
   /*
   |--------------------------------------------------------------------------
@@ -17,11 +38,13 @@ export default {
   | - mysql:// or mysql2:// → MySQL
   | - sqlite:// or file:// or :memory: → SQLite
   |
-  | Falls back to DATABASE_URL environment variable if not specified.
+  | Set DATABASE_URL for a full connection string, or use the individual
+  | DB_* variables (DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USER,
+  | DB_PASSWORD) to have the URL built automatically.
   |
   */
 
-  connection: Bun.env.DATABASE_URL || "postgres://localhost:5432/orcs",
+  connection: buildConnectionUrl(),
 
   /*
   |--------------------------------------------------------------------------

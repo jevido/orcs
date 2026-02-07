@@ -3,6 +3,7 @@ import { Route } from "../routing/router.js";
 import { openApiRegistry } from "../openapi/registry.js";
 import { createServer } from "../http/server.js";
 import { ExceptionHandler } from "../errors/handler.js";
+import { getConnection } from "../database/connection.js";
 
 export class Application {
   #providers = [];
@@ -38,6 +39,7 @@ export class Application {
         loggingConfig,
         websocketConfig,
         queueConfig,
+        databaseConfig,
       ] = await Promise.all([
         import(configPath + "/app.js").then((m) => m.default),
         import(configPath + "/http.js").then((m) => m.default),
@@ -54,6 +56,9 @@ export class Application {
         import(configPath + "/queue.js")
           .then((m) => m.default)
           .catch(() => ({})), // Queue config is optional
+        import(configPath + "/database.js")
+          .then((m) => m.default)
+          .catch(() => ({})), // Database config is optional
       ]);
 
       this.#config = new ConfigRepository({
@@ -64,7 +69,13 @@ export class Application {
         logging: loggingConfig,
         websocket: websocketConfig,
         queue: queueConfig,
+        database: databaseConfig,
       });
+
+      // Initialize database connection if configured
+      if (databaseConfig.connection) {
+        getConnection(databaseConfig.connection);
+      }
 
       // Push OpenAPI info to the registry
       openApiRegistry.setInfo({
