@@ -23,11 +23,49 @@ if (existsSync(projectPath)) {
 
 console.log(`\n🚀 Creating ORCS project: ${projectName}\n`);
 
+// Ask user what type of project
+console.log("What would you like to create?\n");
+console.log("  1) 📦 Example app - Full featured with all ORCS capabilities demonstrated");
+console.log("     • Authentication (JWT)");
+console.log("     • Database with migrations");
+console.log("     • WebSockets (chat, echo, notifications)");
+console.log("     • Background jobs");
+console.log("     • Docker Compose setup");
+console.log("     • All example code and documentation");
+console.log("");
+console.log("  2) 🏗️  Skeleton app - Clean structure, ready for your code");
+console.log("     • Minimal boilerplate");
+console.log("     • Basic health endpoint");
+console.log("     • Empty directories for your code");
+console.log("     • Ready to build from scratch");
+console.log("");
+
+const choice = prompt("Choose [1-2]:");
+
+let templateName = "example";
+
+if (choice === "2") {
+  templateName = "skeleton";
+} else if (choice !== "1") {
+  console.log("\n⚠️  Invalid choice, using example template as default.\n");
+}
+
+const templatePath = join(import.meta.dir, `../templates/${templateName}`);
+
+if (!existsSync(templatePath)) {
+  console.error(`❌ Error: Template "${templateName}" not found`);
+  process.exit(1);
+}
+
+console.log(templateName === "skeleton"
+  ? `\n🏗️  Creating clean skeleton app...\n`
+  : `\n📦 Creating example app with full features...\n`
+);
+
 // Create project directory
 mkdirSync(projectPath, { recursive: true });
 
 // Copy template
-const templatePath = join(import.meta.dir, "../templates/default");
 cpSync(templatePath, projectPath, { recursive: true });
 
 // Create package.json
@@ -84,14 +122,57 @@ try {
 }
 
 // Success message
-console.log(`
-✅ Created ${projectName}
+if (templateName === "skeleton") {
+  console.log(`
+✅ Created ${projectName} (skeleton)
+
+Your clean ORCS project is ready!
 
 Next steps:
   cd ${projectName}
+
+  # Start building
+  bun orcs make:controller UserController
+  bun orcs make:migration create_users_table
+
+  # Start development server
   bun run dev
 
 Visit http://localhost:42069/docs
 
 📚 Documentation: https://github.com/jevido/orcs
 `);
+} else {
+  console.log(`
+✅ Created ${projectName} (example app)
+
+Your ORCS project with full examples is ready!
+
+Next steps:
+  cd ${projectName}
+
+  # Optional: Start services (PostgreSQL, Redis, MinIO, Mailpit)
+  docker compose up -d
+
+  # Copy and configure environment
+  cp .env.example .env
+
+  # Run migrations
+  bun orcs db:migrate
+
+  # Start development server
+  bun run dev
+
+Visit http://localhost:42069/docs
+
+Features included:
+  • Authentication endpoints (JWT)
+  • Database examples with migrations
+  • WebSocket servers (echo, chat, notifications)
+  • Background jobs
+  • Docker Compose setup
+  • Complete documentation
+
+📚 Documentation: https://github.com/jevido/orcs
+`);
+}

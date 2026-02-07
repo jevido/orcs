@@ -8,16 +8,12 @@ Built with [ORCS](https://github.com/jevido/orcs) - Opinionated Runtime for Cont
 # Start development server
 bun run dev
 
-# Start production server
+# Or start normally
 bun start
-
-# Run tests
-bun test
 ```
 
 ## Endpoints
 
-- **API**: http://localhost:42069/api
 - **Health**: http://localhost:42069/api/health
 - **Docs**: http://localhost:42069/docs
 - **OpenAPI**: http://localhost:42069/openapi.json
@@ -35,8 +31,7 @@ bun test
 ├── bootstrap/           # Application bootstrap
 ├── config/             # Configuration files
 ├── routes/             # Route definitions
-│   ├── api.js          # API routes
-│   └── websocket.js    # WebSocket routes
+│   └── api.js          # API routes
 ├── database/
 │   └── migrations/     # Database migrations
 ├── storage/
@@ -44,60 +39,40 @@ bun test
 └── server.js          # Entry point
 ```
 
-## Adding Routes
+## Adding Your First Route
 
 Edit [routes/api.js](routes/api.js):
 
 ```javascript
 import { Route } from "@jevido/orcs";
-import { UserController } from "../app/controllers/user-controller.js";
 
 Route.get("/api/users", {
   summary: "List users",
   tags: ["Users"],
   responses: { 200: { description: "User list" } }
-}, UserController.index);
+}, (ctx) => ctx.json({ users: [] }));
 ```
 
 Your routes automatically generate OpenAPI documentation!
 
-## Creating Controllers
-
-```bash
-bun orcs make:controller UserController
-```
-
-This creates `app/controllers/user-controller.js`:
-
-```javascript
-export class UserController {
-  static async index(ctx) {
-    return ctx.json({ users: [] });
-  }
-}
-```
-
 ## CLI Commands
 
 ```bash
-bun orcs serve              # Start the server
-bun orcs routes             # List all routes
-bun orcs make:controller    # Generate a controller
-bun orcs make:middleware    # Generate middleware
-bun orcs make:migration     # Generate a migration
+# Code Generation
+bun orcs make:controller UserController
+bun orcs make:middleware AuthMiddleware
+bun orcs make:migration create_users_table
+bun orcs make:provider CacheServiceProvider
+
+# Database
 bun orcs db:migrate         # Run migrations
+bun orcs db:rollback        # Rollback last migration
+bun orcs db:status          # Migration status
+
+# Other
+bun orcs routes             # List all routes
 bun orcs queue:work         # Start queue worker
 ```
-
-## Configuration
-
-Copy `.env.example` to `.env` and customize:
-
-```bash
-cp .env.example .env
-```
-
-Configuration files are in the [config/](config/) directory.
 
 ## Documentation
 
@@ -109,12 +84,30 @@ Configuration files are in the [config/](config/) directory.
 - [WebSockets](https://github.com/jevido/orcs/blob/main/docs/websockets.md)
 - [Job Queue](https://github.com/jevido/orcs/blob/main/docs/queue.md)
 
-## Example Files
+## Next Steps
 
-This project includes example files to help you get started:
+1. **Add a controller**
+   ```bash
+   bun orcs make:controller UserController
+   ```
 
-- [app/controllers/example-controller.js](app/controllers/example-controller.js) - CRUD example
-- [app/middleware/cors-middleware.js](app/middleware/cors-middleware.js) - CORS example
-- [app/jobs/example-job.js](app/jobs/example-job.js) - Background job example
+2. **Add a route** in `routes/api.js`
+   ```javascript
+   Route.get("/api/users", {
+     summary: "List users",
+     tags: ["Users"]
+   }, UserController.index);
+   ```
 
-Feel free to modify or delete these files as you build your application.
+3. **Need a database?**
+   ```bash
+   bun orcs make:migration create_users_table
+   ```
+
+4. **Need authentication?** See [Authentication docs](https://github.com/jevido/orcs/blob/main/docs/authentication.md)
+
+5. **Need WebSockets?** See [WebSockets docs](https://github.com/jevido/orcs/blob/main/docs/websockets.md)
+
+## License
+
+MIT
