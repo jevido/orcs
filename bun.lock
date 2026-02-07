@@ -4,12 +4,25 @@
   "workspaces": {
     "": {
       "name": "orcs",
-      "devDependencies": {
-        "prettier": "^3.8.1",
+    },
+    "example": {
+      "name": "orcs-example",
+      "version": "0.1.0",
+      "dependencies": {
+        "@jevido/orcs": "workspace:*",
+      },
+    },
+    "packages/orcs": {
+      "name": "@jevido/orcs",
+      "version": "0.1.0",
+      "bin": {
+        "orcs": "./bin/orcs.js",
       },
     },
   },
   "packages": {
-    "prettier": ["prettier@3.8.1", "", { "bin": { "prettier": "bin/prettier.cjs" } }, "sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg=="],
+    "@jevido/orcs": ["@jevido/orcs@workspace:packages/orcs"],
+
+    "orcs-example": ["orcs-example@workspace:example"],
   }
 }

@@ -5,7 +5,7 @@
  * Uncomment and customize the examples below as needed.
  */
 
-import { ws } from "../src/index.js";
+import { ws } from "@jevido/orcs";
 
 // Example: Echo WebSocket for testing
 ws("/ws/echo", {

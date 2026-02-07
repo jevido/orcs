@@ -1,4 +1,4 @@
-import { getConnection } from "../../src/database/connection.js";
+import { getConnection } from "@jevido/orcs/database/connection.js";
 
 export class HealthController {
   static async index(ctx) {

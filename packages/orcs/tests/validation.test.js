@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
-import { boot } from "../bootstrap/app.js";
+import { boot } from "./helpers/boot.js";
 
 // Set test environment so routes/test.js gets loaded
 process.env.NODE_ENV = "test";

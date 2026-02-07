@@ -1,4 +1,4 @@
-import { Route } from "../src/routing/router.js";
+import { Route } from "@jevido/orcs/routing/router.js";
 import { HealthController } from "../app/controllers/health-controller.js";
 
 Route.group({ prefix: "/api", tags: ["General"] }, () => {

@@ -11,7 +11,7 @@
  * await SendEmailJob.dispatchAfter(60, { to: 'user@example.com' }); // 60 seconds
  */
 
-import { Job } from "../../src/index.js";
+import { Job } from "@jevido/orcs";
 
 export class SendEmailJob extends Job {
   /**

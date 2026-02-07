@@ -9,11 +9,11 @@
  *   export default [AppServiceProvider, RouteServiceProvider, AuthServiceProvider];
  */
 
-import { ServiceProvider } from "../../src/core/service-provider.js";
-import { Authenticator } from "../../src/auth/authenticator.js";
-import { JwtGuard } from "../../src/auth/guards/jwt-guard.js";
-import { ApiTokenGuard } from "../../src/auth/guards/api-token-guard.js";
-import { DB } from "../../src/database/query-builder.js";
+import { ServiceProvider } from "@jevido/orcs/core/service-provider.js";
+import { Authenticator } from "@jevido/orcs/auth/authenticator.js";
+import { JwtGuard } from "@jevido/orcs/auth/guards/jwt-guard.js";
+import { ApiTokenGuard } from "@jevido/orcs/auth/guards/api-token-guard.js";
+import { DB } from "@jevido/orcs/database/query-builder.js";
 
 export class AuthServiceProvider extends ServiceProvider {
   register() {

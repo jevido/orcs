@@ -1,4 +1,4 @@
-import { ExceptionHandler } from "../../src/errors/handler.js";
+import { ExceptionHandler } from "@jevido/orcs/errors/handler.js";
 
 /**
  * Application-level exception handler.

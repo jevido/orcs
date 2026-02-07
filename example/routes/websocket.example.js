@@ -5,7 +5,7 @@
  * Copy this to routes/websocket.js and customize as needed.
  */
 
-import { ws } from "../src/index.js";
+import { ws } from "@jevido/orcs";
 
 // Chat room WebSocket
 ws("/ws/chat", {

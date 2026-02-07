@@ -19,7 +19,7 @@ import {
   s3exists,
   s3presign,
   s3list,
-} from "../../src/index.js";
+} from "@jevido/orcs";
 
 // ============================================================================
 // Object-Oriented Approach

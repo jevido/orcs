@@ -5,7 +5,7 @@
  * Import this in your routes for easy authentication.
  */
 
-import { auth as createAuthMiddleware } from "../../src/auth/middleware.js";
+import { auth as createAuthMiddleware } from "@jevido/orcs/auth/middleware.js";
 
 /**
  * Require authentication (default guard)

@@ -1,4 +1,4 @@
-import { Route } from "../src/index.js";
+import { Route } from "@jevido/orcs";
 
 // Test routes for validation
 Route.post(

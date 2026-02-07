@@ -1,4 +1,4 @@
-import { ServiceProvider } from "../../src/core/service-provider.js";
+import { ServiceProvider } from "@jevido/orcs/core/service-provider.js";
 
 export class RouteServiceProvider extends ServiceProvider {
   async boot() {

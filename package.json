@@ -1,15 +1,13 @@
 {
-  "name": "orcs",
-  "version": "0.1.0",
-  "type": "module",
+  "name": "orcs-monorepo",
   "private": true,
-  "bin": {
-    "orcs": "./bin/orcs.js"
-  },
+  "workspaces": [
+    "packages/*",
+    "example"
+  ],
   "scripts": {
-    "format": "prettier --write ."
-  },
-  "devDependencies": {
-    "prettier": "^3.8.1"
+    "test": "bun test packages/orcs/tests",
+    "dev": "cd example && bun --watch server.js",
+    "publish:framework": "cd packages/orcs && bun publish"
   }
 }

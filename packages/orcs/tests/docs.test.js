@@ -1,5 +1,5 @@
 import { describe, test, expect, afterAll } from "bun:test";
-import { boot } from "../bootstrap/app.js";
+import { boot } from "./helpers/boot.js";
 
 // Set test environment
 process.env.NODE_ENV = "test";

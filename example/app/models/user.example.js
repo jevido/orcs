@@ -7,7 +7,7 @@
  * Copy this to app/models/user.js and customize as needed.
  */
 
-import { Model } from "../../src/index.js";
+import { Model } from "@jevido/orcs";
 
 export class User extends Model {
   /**

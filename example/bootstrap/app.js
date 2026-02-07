@@ -1,4 +1,4 @@
-import { Application } from "../src/core/application.js";
+import { Application } from "@jevido/orcs/core/application.js";
 import { AppExceptionHandler } from "../app/exceptions/handler.js";
 import providers from "./providers.js";
 
