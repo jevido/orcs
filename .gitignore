@@ -27,6 +27,13 @@ logs/*
 cache/*
 tmp/*
 
+# === Database ===
+*.sqlite
+*.sqlite3
+*.db
+database/*.sqlite
+database/*.db
+
 # === Test artifacts ===
 coverage/
 .nyc_output/

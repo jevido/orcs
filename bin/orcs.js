@@ -11,9 +11,15 @@ import { resolve } from "node:path";
 const commands = {
   serve: () => import("./commands/serve.js"),
   routes: () => import("./commands/routes.js"),
+  test: () => import("./commands/test.js"),
   "make:controller": () => import("./commands/make-controller.js"),
   "make:middleware": () => import("./commands/make-middleware.js"),
   "make:provider": () => import("./commands/make-provider.js"),
+  "make:migration": () => import("./commands/make-migration.js"),
+  "db:migrate": () => import("./commands/db-migrate.js"),
+  "db:rollback": () => import("./commands/db-rollback.js"),
+  "db:reset": () => import("./commands/db-reset.js"),
+  "db:status": () => import("./commands/db-status.js"),
 };
 
 async function main() {
@@ -63,9 +69,15 @@ Usage: bun orcs <command> [options]
 Commands:
   serve                 Start the HTTP server
   routes                Display all registered routes
+  test                  Run the test suite
   make:controller       Generate a new controller
   make:middleware       Generate a new middleware
   make:provider         Generate a new service provider
+  make:migration        Generate a new migration
+  db:migrate            Run pending migrations
+  db:rollback           Rollback last batch of migrations
+  db:reset              Reset all migrations
+  db:status             Show migration status
 
 Options:
   -h, --help           Show this help message
@@ -73,9 +85,14 @@ Options:
 Examples:
   bun orcs serve
   bun orcs routes
+  bun orcs test
   bun orcs make:controller UserController
   bun orcs make:middleware auth
   bun orcs make:provider CacheServiceProvider
+  bun orcs make:migration create_users_table
+  bun orcs db:migrate
+  bun orcs db:rollback
+  bun orcs db:status
 
 For more information, visit: https://github.com/yourusername/orcs
 `);

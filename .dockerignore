@@ -1,0 +1,17 @@
+node_modules
+.git
+.env
+.env.*
+!.env.example
+*.log
+*.md
+!README.md
+.vscode
+.idea
+.DS_Store
+docker-compose.yml
+Dockerfile
+tests/
+storage/
+database/migrations/*
+!database/migrations/.gitkeep

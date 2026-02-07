@@ -6,7 +6,11 @@ import { createValidationMiddleware } from "../validation/middleware.js";
  * Compiles ORCS routes into Bun's native routes object format.
  * Groups routes by path and method, wraps handlers with middleware.
  */
-export function compileToBunRoutes(routeCollection, globalMiddleware = []) {
+export function compileToBunRoutes(
+  routeCollection,
+  globalMiddleware = [],
+  app = null,
+) {
   const routes = {};
   const allRoutes = routeCollection.all();
 
@@ -26,7 +30,11 @@ export function compileToBunRoutes(routeCollection, globalMiddleware = []) {
   for (const [path, routesForPath] of pathGroups) {
     const methodHandlers = {};
     for (const route of routesForPath) {
-      methodHandlers[route.method] = createBunHandler(route, globalMiddleware);
+      methodHandlers[route.method] = createBunHandler(
+        route,
+        globalMiddleware,
+        app,
+      );
     }
     routes[path] = methodHandlers;
   }
@@ -37,7 +45,7 @@ export function compileToBunRoutes(routeCollection, globalMiddleware = []) {
 /**
  * Creates a Bun-compatible handler that wraps ORCS middleware and context
  */
-function createBunHandler(route, globalMiddleware) {
+function createBunHandler(route, globalMiddleware, app) {
   return async (req) => {
     const url = new URL(req.url);
 
@@ -54,6 +62,7 @@ function createBunHandler(route, globalMiddleware) {
       query,
       body,
       headers: Object.fromEntries(req.headers.entries()),
+      app,
     });
 
     // Build middleware stack with automatic validation

@@ -552,6 +552,56 @@ ORCS includes a command-line interface for common tasks:
 bun orcs <command> [options]
 ```
 
+### CLI Alias (Optional)
+
+For convenience, you can create a shell alias to run `orcs` without typing `bun`:
+
+**Option 1: Shell Alias (Bash/Zsh)**
+
+Add to your `~/.bashrc` or `~/.zshrc`:
+
+```bash
+alias orcs="bun $(pwd)/bin/orcs.js"
+```
+
+Or for a global alias that works in any ORCS project:
+
+```bash
+alias orcs="bun bin/orcs.js"
+```
+
+Then reload your shell:
+
+```bash
+source ~/.bashrc  # or source ~/.zshrc
+```
+
+Now you can run:
+
+```bash
+orcs serve
+orcs routes
+orcs test
+orcs make:controller UserController
+```
+
+**Option 2: Add to PATH**
+
+Make the CLI globally accessible:
+
+```bash
+# Make executable (if not already)
+chmod +x bin/orcs.js
+
+# Create a symlink in your local bin
+mkdir -p ~/.local/bin
+ln -s $(pwd)/bin/orcs.js ~/.local/bin/orcs
+
+# Make sure ~/.local/bin is in your PATH
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
 ### Available Commands
 
 **Server Management:**
@@ -566,6 +616,19 @@ bun orcs serve
 ```bash
 # List all registered routes
 bun orcs routes
+```
+
+**Testing:**
+
+```bash
+# Run the test suite
+bun orcs test
+
+# Run specific test file
+bun orcs test tests/model.test.js
+
+# Run tests with additional Bun test options
+bun orcs test --watch
 ```
 
 **Code Generation:**
@@ -607,6 +670,660 @@ bun orcs routes
 
 Displays a formatted table of all registered routes with their methods, paths, and metadata.
 
+## Database
+
+ORCS includes a built-in database layer powered by Bun's native SQL support. Zero external dependencies, support for PostgreSQL, MySQL, and SQLite.
+
+### Configuration
+
+Configure your database connection in `config/database.js` or using the `DATABASE_URL` environment variable:
+
+```bash
+# PostgreSQL (recommended)
+DATABASE_URL="postgres://user:password@localhost:5432/mydb"
+
+# MySQL
+DATABASE_URL="mysql://user:password@localhost:3306/mydb"
+
+# SQLite
+DATABASE_URL="sqlite://storage/database.sqlite"
+```
+
+### Local Development with Docker
+
+Start a PostgreSQL database locally using Docker Compose:
+
+```bash
+# Start PostgreSQL in the background
+docker-compose up -d
+
+# Check database status
+docker-compose ps
+
+# View logs
+docker-compose logs -f postgres
+
+# Stop database
+docker-compose down
+
+# Stop and remove data
+docker-compose down -v
+```
+
+The database will be available at `postgres://orcs:orcs@localhost:5432/orcs` (already configured in `.env.example`).
+
+**First time setup:**
+
+```bash
+# Copy environment file
+cp .env.example .env
+
+# Start database
+docker-compose up -d
+
+# Wait for database to be ready (check with docker-compose ps)
+# Then run migrations
+bun orcs db:migrate
+```
+
+### Query Builder
+
+ORCS provides a fluent query builder for constructing SQL queries:
+
+```js
+import { DB } from "./src/index.js";
+
+// Select all users
+const users = await DB("users").get();
+
+// Where clause
+const activeUsers = await DB("users")
+  .where("active", true)
+  .where("age", ">=", 18)
+  .get();
+
+// Select specific columns
+const emails = await DB("users")
+  .select("id", "email")
+  .where("verified", true)
+  .get();
+
+// Order and limit
+const topUsers = await DB("users")
+  .orderBy("created_at", "DESC")
+  .limit(10)
+  .get();
+
+// Get first result
+const user = await DB("users").where("email", "john@example.com").first();
+
+// Insert
+const newUser = await DB("users").insert({
+  name: "Alice",
+  email: "alice@example.com",
+});
+
+// Update
+await DB("users").where("id", 1).update({ name: "Bob" });
+
+// Delete
+await DB("users").where("id", 1).delete();
+
+// Joins
+const posts = await DB("posts")
+  .join("users", "posts.user_id", "=", "users.id")
+  .select("posts.*", "users.name as author_name")
+  .get();
+```
+
+### Raw SQL
+
+For complex queries, use Bun's SQL directly:
+
+```js
+import { sql } from "bun";
+
+// Tagged template literals (safe from SQL injection)
+const users = await sql`
+  SELECT * FROM users
+  WHERE created_at > ${since}
+  ORDER BY name
+`;
+
+// Transactions
+await sql.begin(async (tx) => {
+  await tx`INSERT INTO users (name) VALUES (${"Alice"})`;
+  await tx`UPDATE accounts SET balance = balance - 100`;
+});
+```
+
+### Migrations
+
+Migrations provide version control for your database schema.
+
+**Create a migration:**
+
+```bash
+bun orcs make:migration create_users_table
+```
+
+This creates a timestamped migration file in `database/migrations/`:
+
+```js
+import { Migration } from "../../src/database/migration.js";
+
+export default class CreateUsersTable extends Migration {
+  async up(db) {
+    await db.unsafe(`
+      CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+  }
+
+  async down(db) {
+    await db.unsafe(`DROP TABLE IF EXISTS users`);
+  }
+}
+```
+
+**Run migrations:**
+
+```bash
+# Run all pending migrations
+bun orcs db:migrate
+
+# Rollback last batch
+bun orcs db:rollback
+
+# Reset all migrations
+bun orcs db:reset
+
+# Check migration status
+bun orcs db:status
+```
+
+### Transactions
+
+Execute multiple queries in a transaction:
+
+```js
+import { transaction } from "./src/index.js";
+
+await transaction(async (tx) => {
+  await tx`INSERT INTO users (name) VALUES (${"Alice"})`;
+  await tx`UPDATE accounts SET balance = balance - 100 WHERE user_id = 1`;
+  // Auto-commits if no errors, auto-rolls back on error
+});
+```
+
+### Models
+
+ORCS includes an Active Record-style ORM for working with database records using classes. Models provide a clean, object-oriented API on top of the query builder.
+
+**Define a model:**
+
+```js
+// app/models/user.js
+import { Model } from "../../src/index.js";
+
+export class User extends Model {
+  // Table name (auto-inferred as "users" from class name)
+  // static table = "users";
+
+  // Primary key (default: "id")
+  // static primaryKey = "id";
+
+  // Enable timestamps (default: true)
+  static timestamps = true;
+
+  // Enable soft deletes (default: false)
+  static softDeletes = false;
+
+  // Cast attributes to native types
+  static casts = {
+    active: "boolean",
+    age: "integer",
+    metadata: "json",
+  };
+
+  // Hide attributes when converting to JSON
+  static hidden = ["password"];
+}
+```
+
+**Creating records:**
+
+```js
+import { User } from "./app/models/user.js";
+
+// Create and save
+const user = await User.create({
+  name: "John Doe",
+  email: "john@example.com",
+  age: 25,
+});
+
+// Or create instance then save
+const user = new User({
+  name: "Jane Doe",
+  email: "jane@example.com",
+});
+await user.save();
+```
+
+**Finding records:**
+
+```js
+// Find by primary key
+const user = await User.find(1);
+
+// Find or throw error
+const user = await User.findOrFail(1);
+
+// Find by column value
+const users = await User.where("active", true);
+const users = await User.where("age", ">=", 18);
+
+// Get all records
+const users = await User.all();
+
+// Get first record
+const user = await User.first();
+
+// Count records
+const count = await User.count();
+```
+
+**Updating records:**
+
+```js
+// Update instance
+const user = await User.find(1);
+user.setAttribute("name", "New Name");
+await user.save();
+
+// Update multiple records
+await User.query().where("active", false).update({ verified: false });
+```
+
+**Deleting records:**
+
+```js
+// Delete instance
+const user = await User.find(1);
+await user.destroy();
+
+// Soft delete (if enabled)
+await user.destroy(); // Sets deleted_at timestamp
+
+// Force delete (hard delete)
+await user.forceDelete();
+
+// Delete multiple records
+await User.query().where("active", false).delete();
+```
+
+**Working with attributes:**
+
+```js
+const user = new User({
+  name: "John",
+  age: "25", // Will be cast to integer
+  active: "1", // Will be cast to boolean
+  metadata: '{"key": "value"}', // Will be cast to object
+});
+
+// Get attribute
+const name = user.getAttribute("name");
+
+// Check if model has unsaved changes
+if (user.isDirty()) {
+  await user.save();
+}
+
+// Get changed attributes
+const changes = user.getDirty();
+
+// Refresh from database
+await user.refresh();
+
+// Convert to JSON (hidden fields removed)
+const json = user.toJSON();
+```
+
+**Advanced queries:**
+
+Since models use the query builder under the hood, you can chain any query builder methods:
+
+```js
+// Complex queries
+const users = await User.query()
+  .where("active", true)
+  .where("age", ">=", 18)
+  .orderBy("created_at", "DESC")
+  .limit(10)
+  .get();
+
+// Joins
+const posts = await Post.query()
+  .join("users", "posts.user_id", "=", "users.id")
+  .select("posts.*", "users.name as author_name")
+  .get();
+```
+
+**Timestamps:**
+
+When `timestamps = true`, models automatically manage `created_at` and `updated_at`:
+
+```js
+const user = await User.create({ name: "John" });
+// created_at and updated_at are set automatically
+
+user.setAttribute("name", "Jane");
+await user.save();
+// updated_at is automatically updated
+```
+
+**Soft Deletes:**
+
+Enable soft deletes to mark records as deleted without removing them:
+
+```js
+export class User extends Model {
+  static softDeletes = true;
+  static deletedAtColumn = "deleted_at";
+}
+
+// Soft delete
+await user.destroy(); // Sets deleted_at timestamp
+
+// Queries automatically exclude soft-deleted records
+const users = await User.all(); // Only returns non-deleted
+
+// Force delete
+await user.forceDelete(); // Permanently deletes
+```
+
+**Custom table names:**
+
+```js
+export class BlogPost extends Model {
+  static table = "posts"; // Override auto-inferred "blog_posts"
+}
+```
+
+## Authentication
+
+ORCS provides a flexible authentication system with support for multiple guards (JWT, API tokens) using zero external dependencies. All cryptographic operations use Bun's native Web Crypto APIs.
+
+### Configuration
+
+Configure authentication in `config/auth.js` and `.env`:
+
+```bash
+# .env
+AUTH_GUARD=jwt
+JWT_SECRET=your-secret-key-here
+JWT_EXPIRES_IN=1h
+```
+
+### JWT Authentication
+
+JWT (JSON Web Tokens) is the default authentication method. Tokens are signed using HMAC-SHA256.
+
+**Signing a token:**
+
+```js
+import { JwtGuard } from "./src/index.js";
+
+const guard = new JwtGuard({
+  secret: Bun.env.JWT_SECRET,
+});
+
+// Create a token
+const token = await guard.sign(
+  { userId: 1, email: "user@example.com" },
+  { expiresIn: "1h" }, // Optional: "30m", "2h", "7d", or seconds
+);
+
+// Returns: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNjEyMzQ1NiwiZXhwIjoxNzA2MTI3MDU2fQ.signature"
+```
+
+**Verifying a token:**
+
+```js
+const payload = await guard.verifyToken(token);
+// Returns: { userId: 1, email: "user@example.com", iat: 1706123456, exp: 1706127056 }
+```
+
+### API Token Authentication
+
+API tokens are simple bearer tokens, typically stored hashed in a database.
+
+**Generating a token:**
+
+```js
+import { ApiTokenGuard } from "./src/index.js";
+
+// Generate a random token (default: 64 characters)
+const token = ApiTokenGuard.generateToken();
+
+// Hash for storage
+const hash = await ApiTokenGuard.hashToken(token);
+// Save hash to database, return plain token to user
+```
+
+**Validating a token:**
+
+```js
+const guard = new ApiTokenGuard({
+  tokenProvider: async (token) => {
+    // Hash the incoming token
+    const hash = await ApiTokenGuard.hashToken(token);
+
+    // Look up in database
+    const tokenRecord = await DB("api_tokens").where("token", hash).first();
+    if (!tokenRecord) return null;
+
+    // Return the user
+    return await DB("users").where("id", tokenRecord.user_id).first();
+  },
+});
+```
+
+### Protecting Routes
+
+Use the `auth` middleware to require authentication:
+
+```js
+import { Route } from "./src/index.js";
+import { auth } from "./app/middleware/auth.js";
+
+Route.group({ prefix: "/api", middleware: [auth] }, () => {
+  Route.get("/profile", { summary: "Get user profile" }, (ctx) => {
+    return ctx.json(ctx.user); // User is attached by auth middleware
+  });
+});
+```
+
+### Multiple Guards
+
+Use specific guards or allow multiple authentication methods:
+
+```js
+import { requireGuards, requireAnyGuard } from "./src/index.js";
+
+// Require BOTH guards to pass
+Route.get(
+  "/api/admin",
+  { middleware: [requireGuards("jwt", "api")] },
+  AdminController.index,
+);
+
+// Require ANY guard to pass
+Route.get(
+  "/api/data",
+  { middleware: [requireAnyGuard("jwt", "api")] },
+  DataController.index,
+);
+```
+
+### Optional Authentication
+
+Attach user information if present, but don't require it:
+
+```js
+import { authOptional } from "./app/middleware/auth.js";
+
+Route.get("/api/posts", { middleware: [authOptional] }, (ctx) => {
+  if (ctx.authenticated) {
+    // Show private posts for authenticated users
+  } else {
+    // Show only public posts
+  }
+});
+```
+
+### Setting Up Authentication
+
+Register the authenticator in a service provider:
+
+```js
+// app/providers/auth-service-provider.js
+import { ServiceProvider } from "../../src/core/service-provider.js";
+import { Authenticator } from "../../src/auth/authenticator.js";
+import { JwtGuard } from "../../src/auth/guards/jwt-guard.js";
+import { ApiTokenGuard } from "../../src/auth/guards/api-token-guard.js";
+import { DB } from "../../src/database/query-builder.js";
+
+export class AuthServiceProvider extends ServiceProvider {
+  register() {
+    const config = this.app.config.get("auth");
+
+    // Create authenticator
+    const authenticator = new Authenticator(config);
+
+    // Register JWT guard
+    const jwtGuard = new JwtGuard({
+      secret: config.jwt.secret,
+      algorithm: config.jwt.algorithm,
+      // Optional: fetch full user from database
+      userProvider: async (payload) => {
+        return await DB("users").where("id", payload.userId).first();
+      },
+    });
+
+    // Register API token guard
+    const apiGuard = new ApiTokenGuard({
+      tokenProvider: async (token) => {
+        const hash = await ApiTokenGuard.hashToken(token);
+        const tokenRecord = await DB("api_tokens").where("token", hash).first();
+        if (!tokenRecord) return null;
+        return await DB("users").where("id", tokenRecord.user_id).first();
+      },
+    });
+
+    authenticator.registerGuard("jwt", jwtGuard);
+    authenticator.registerGuard("api", apiGuard);
+
+    // Attach to app
+    this.app.authenticator = authenticator;
+  }
+}
+```
+
+Register the provider in `bootstrap/providers.js`:
+
+```js
+import { AuthServiceProvider } from "../app/providers/auth-service-provider.js";
+
+export default [
+  // ... other providers
+  AuthServiceProvider,
+];
+```
+
+### Accessing the Authenticated User
+
+In any handler protected by auth middleware:
+
+```js
+export class UserController {
+  static async profile(ctx) {
+    // User is automatically attached by middleware
+    const user = ctx.user;
+
+    return ctx.json({
+      id: user.id,
+      email: user.email,
+      authenticated: ctx.authenticated, // Always true in protected routes
+    });
+  }
+}
+```
+
+### Example: Login/Register Endpoints
+
+```js
+// app/controllers/auth-controller.js
+import { DB } from "../../src/database/query-builder.js";
+import { JwtGuard } from "../../src/auth/guards/jwt-guard.js";
+
+const guard = new JwtGuard({ secret: Bun.env.JWT_SECRET });
+
+export class AuthController {
+  static async register(ctx) {
+    const { email, password, name } = ctx.body;
+
+    // Hash password (use bcrypt or similar in production)
+    const hashedPassword = await Bun.password.hash(password);
+
+    // Create user
+    const user = await DB("users").insert({
+      email,
+      name,
+      password: hashedPassword,
+    });
+
+    // Generate JWT
+    const token = await guard.sign(
+      { userId: user.id, email: user.email },
+      { expiresIn: "7d" },
+    );
+
+    return ctx.json({ user, token }, 201);
+  }
+
+  static async login(ctx) {
+    const { email, password } = ctx.body;
+
+    // Find user
+    const user = await DB("users").where("email", email).first();
+    if (!user) {
+      ctx.abort(401, "Invalid credentials");
+    }
+
+    // Verify password
+    const valid = await Bun.password.verify(password, user.password);
+    if (!valid) {
+      ctx.abort(401, "Invalid credentials");
+    }
+
+    // Generate JWT
+    const token = await guard.sign(
+      { userId: user.id, email: user.email },
+      { expiresIn: "7d" },
+    );
+
+    return ctx.json({ user, token });
+  }
+}
+```
+
 ## Comparison with Laravel
 
 | Concept           | Laravel                           | ORCS                              |
@@ -639,6 +1356,21 @@ import {
   Validator, // JSON schema validator
   createValidationMiddleware, // Create validation middleware from schema
   createDocsHandler, // Create interactive documentation handler
+  getConnection, // Get database connection
+  closeConnection, // Close database connection
+  transaction, // Execute queries in a transaction
+  QueryBuilder, // Query builder class
+  DB, // Shorthand for QueryBuilder
+  table, // Create query builder for table
+  Model, // Active Record base class
+  Migration, // Base migration class
+  Migrator, // Migration runner
+  Authenticator, // Authentication manager
+  JwtGuard, // JWT authentication guard
+  ApiTokenGuard, // API token authentication guard
+  auth, // Auth middleware factory
+  requireGuards, // Require multiple guards
+  requireAnyGuard, // Require any of multiple guards
 } from "./src/index.js";
 ```
 
@@ -647,12 +1379,13 @@ import {
 - [x] Request validation against OpenAPI schemas
 - [x] `/docs` endpoint (Swagger UI / Scalar / jevido/openapi-docs)
 - [x] CLI tooling (`bun orcs serve`, `bun orcs routes`, `bun orcs make:*`)
-- [ ] Database layer (query builder, migrations, seeds)
-- [ ] Authentication middleware and guards
+- [x] Database layer (query builder, migrations, seeds)
+- [x] Authentication middleware and guards
 - [ ] Logging system with structured output
 - [ ] WebSocket support via Bun
 - [ ] Background job queue
 - [ ] Response caching middleware
+- [ ] S3 support
 
 See [todo.md](todo.md) for the full roadmap.
 

@@ -16,6 +16,10 @@ describe("GET /api/health", () => {
     const body = await res.json();
     expect(body.status).toBe("ok");
     expect(body.timestamp).toBeDefined();
+    expect(body.services).toBeDefined();
+    expect(body.services.database).toBeDefined();
+    expect(body.services.database.status).toBe("ok");
+    expect(body.services.database.responseTime).toBeDefined();
   });
 });
 

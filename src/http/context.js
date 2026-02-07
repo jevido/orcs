@@ -1,7 +1,14 @@
 import { HttpException } from "../errors/http-exception.js";
 
 export class Context {
-  constructor({ req, params = {}, query = {}, body = null, headers = {} }) {
+  constructor({
+    req,
+    params = {},
+    query = {},
+    body = null,
+    headers = {},
+    app = null,
+  }) {
     this.req = req;
     this.params = params;
     this.query = query;
@@ -9,6 +16,9 @@ export class Context {
     this.headers = headers;
     this.method = req.method;
     this.path = new URL(req.url).pathname;
+    this.app = app;
+    this.user = null;
+    this.authenticated = false;
   }
 
   json(data, status = 200) {

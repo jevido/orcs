@@ -13,6 +13,7 @@ export class Application {
     this.#basePath = basePath || process.cwd();
     this.#config = new ConfigRepository();
     this.exceptionHandler = new ExceptionHandler();
+    this.authenticator = null;
   }
 
   get basePath() {
@@ -27,16 +28,21 @@ export class Application {
     const configPath = this.#basePath + "/config";
 
     try {
-      const [appConfig, httpConfig, openapiConfig] = await Promise.all([
-        import(configPath + "/app.js").then((m) => m.default),
-        import(configPath + "/http.js").then((m) => m.default),
-        import(configPath + "/openapi.js").then((m) => m.default),
-      ]);
+      const [appConfig, httpConfig, openapiConfig, authConfig] =
+        await Promise.all([
+          import(configPath + "/app.js").then((m) => m.default),
+          import(configPath + "/http.js").then((m) => m.default),
+          import(configPath + "/openapi.js").then((m) => m.default),
+          import(configPath + "/auth.js")
+            .then((m) => m.default)
+            .catch(() => ({})), // Auth config is optional
+        ]);
 
       this.#config = new ConfigRepository({
         app: appConfig,
         http: httpConfig,
         openapi: openapiConfig,
+        auth: authConfig,
       });
 
       // Push OpenAPI info to the registry

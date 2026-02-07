@@ -13,7 +13,7 @@ export function createServer(app) {
   const handler = app.exceptionHandler || new ExceptionHandler();
 
   // Compile ORCS routes to Bun's native routes format
-  const bunRoutes = compileToBunRoutes(routeCollection, globalMiddleware);
+  const bunRoutes = compileToBunRoutes(routeCollection, globalMiddleware, app);
 
   // Wrap all route handlers with error handling
   const wrappedRoutes = wrapRoutesWithErrorHandler(bunRoutes, handler);

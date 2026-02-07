@@ -7,10 +7,7 @@
     "orcs": "./bin/orcs.js"
   },
   "scripts": {
-    "format": "prettier --write .",
-    "dev": "bun --hot server.js",
-    "start": "bun server.js",
-    "test": "NODE_ENV=test bun test"
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "prettier": "^3.8.1"
