@@ -2,10 +2,14 @@ import { compileToBunRoutes } from "../routing/bun-route-compiler.js";
 import { generateOpenApiDocument } from "../openapi/generator.js";
 import { ExceptionHandler } from "../errors/handler.js";
 import { createDocsHandler } from "./docs-handler.js";
+import { WebSocketRoute } from "../websocket/route.js";
+import { WebSocketManager } from "../websocket/manager.js";
+import { WebSocketAuthenticator } from "../websocket/authenticator.js";
 
 /**
  * Creates and starts a Bun HTTP server using native routes object.
  * Routes are compiled from ORCS format to Bun's native format for optimal performance.
+ * Supports WebSocket upgrades using Bun's native WebSocket implementation.
  */
 export function createServer(app) {
   const routeCollection = app.routeCollection();
@@ -20,6 +24,26 @@ export function createServer(app) {
 
   // Create docs handler
   const docsHandler = createDocsHandler(app.config);
+
+  // Setup WebSocket support
+  const wsConfig = app.config.get("websocket", {});
+  const wsManager = new WebSocketManager({
+    idleTimeout: wsConfig.idleTimeout,
+    maxPayloadLength: wsConfig.maxPayloadLength,
+    logger: app.logger,
+  });
+
+  // Create WebSocket authenticator if authentication is configured
+  let wsAuth = null;
+  if (wsConfig.auth?.enabled && app.authenticator) {
+    wsAuth = new WebSocketAuthenticator({
+      authenticator: app.authenticator,
+    });
+  }
+
+  // Get WebSocket routes
+  const wsRoutes = WebSocketRoute.all();
+  const wsRouteMap = new Map(wsRoutes.map((r) => [r.path, r]));
 
   const server = Bun.serve({
     port: app.config.get("http.port", 3000),
@@ -42,9 +66,44 @@ export function createServer(app) {
     },
 
     // Fallback for unmatched routes and method not allowed
-    async fetch(req) {
+    async fetch(req, server) {
       const url = new URL(req.url);
       const path = url.pathname;
+
+      // Check if this is a WebSocket upgrade request
+      const wsRoute = wsRouteMap.get(path);
+      if (wsRoute) {
+        // Authenticate if required
+        if (wsRoute.options?.auth?.required && wsAuth) {
+          const ws = { data: {} };
+          const canConnect = await wsAuth.required()(req, ws);
+          if (!canConnect) {
+            return new Response("Unauthorized", { status: 401 });
+          }
+        }
+
+        // Upgrade to WebSocket
+        const success = server.upgrade(req, {
+          data: {
+            route: wsRoute,
+            manager: wsManager,
+          },
+        });
+
+        if (success) {
+          // Authenticate if optional
+          if (
+            wsRoute.options?.auth &&
+            !wsRoute.options.auth.required &&
+            wsAuth
+          ) {
+            // Authentication will happen in open handler
+          }
+          return undefined;
+        }
+
+        return new Response("WebSocket upgrade failed", { status: 500 });
+      }
 
       // Check if path exists with different methods (405 handling)
       const availableMethods = routeCollection.methodsFor(path);
@@ -67,7 +126,13 @@ export function createServer(app) {
         { status: 404 },
       );
     },
+
+    // WebSocket handlers
+    websocket: wsManager.getHandlers(),
   });
+
+  // Store manager on server for access in application
+  server.wsManager = wsManager;
 
   return server;
 }

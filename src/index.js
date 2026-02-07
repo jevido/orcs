@@ -34,3 +34,6 @@ export {
   error,
 } from "./logging/logger.js";
 export { requestLogger, accessLog } from "./logging/middleware.js";
+export { WebSocketManager } from "./websocket/manager.js";
+export { WebSocketRoute, ws } from "./websocket/route.js";
+export { WebSocketAuthenticator } from "./websocket/authenticator.js";

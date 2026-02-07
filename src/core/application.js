@@ -28,18 +28,27 @@ export class Application {
     const configPath = this.#basePath + "/config";
 
     try {
-      const [appConfig, httpConfig, openapiConfig, authConfig, loggingConfig] =
-        await Promise.all([
-          import(configPath + "/app.js").then((m) => m.default),
-          import(configPath + "/http.js").then((m) => m.default),
-          import(configPath + "/openapi.js").then((m) => m.default),
-          import(configPath + "/auth.js")
-            .then((m) => m.default)
-            .catch(() => ({})), // Auth config is optional
-          import(configPath + "/logging.js")
-            .then((m) => m.default)
-            .catch(() => ({})), // Logging config is optional
-        ]);
+      const [
+        appConfig,
+        httpConfig,
+        openapiConfig,
+        authConfig,
+        loggingConfig,
+        websocketConfig,
+      ] = await Promise.all([
+        import(configPath + "/app.js").then((m) => m.default),
+        import(configPath + "/http.js").then((m) => m.default),
+        import(configPath + "/openapi.js").then((m) => m.default),
+        import(configPath + "/auth.js")
+          .then((m) => m.default)
+          .catch(() => ({})), // Auth config is optional
+        import(configPath + "/logging.js")
+          .then((m) => m.default)
+          .catch(() => ({})), // Logging config is optional
+        import(configPath + "/websocket.js")
+          .then((m) => m.default)
+          .catch(() => ({})), // WebSocket config is optional
+      ]);
 
       this.#config = new ConfigRepository({
         app: appConfig,
@@ -47,6 +56,7 @@ export class Application {
         openapi: openapiConfig,
         auth: authConfig,
         logging: loggingConfig,
+        websocket: websocketConfig,
       });
 
       // Push OpenAPI info to the registry
