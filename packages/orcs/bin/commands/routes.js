@@ -53,17 +53,14 @@ export default async function routes(args) {
       for (const route of methodRoutes) {
         const color = methodColors[method] || "";
         const methodPadded = method.padEnd(7);
-        const path = route.path;
+        const path = route.path.padEnd(40);
         const summary = route.meta?.summary || "";
         const middleware =
           route.middleware?.length > 0
-            ? ` [${route.middleware.length} middleware]`
+            ? ` [${route.middleware.length}m]`
             : "";
 
-        console.log(`  ${color}${methodPadded}${reset} ${path}${middleware}`);
-        if (summary) {
-          console.log(`          ${summary}`);
-        }
+        console.log(`  ${color}${methodPadded}${reset} ${path} ${summary}${middleware}`);
       }
     }
 

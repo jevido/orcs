@@ -10,6 +10,7 @@ import { resolve } from "node:path";
 
 const commands = {
   serve: () => import("./commands/serve.js"),
+  dev: () => import("./commands/dev.js"),
   routes: () => import("./commands/routes.js"),
   test: () => import("./commands/test.js"),
   "make:controller": () => import("./commands/make-controller.js"),
@@ -71,6 +72,7 @@ Usage: bun orcs <command> [options]
 
 Commands:
   serve                 Start the HTTP server
+  dev                   Start the dev server (hot reload)
   routes                Display all registered routes
   test                  Run the test suite
   make:controller       Generate a new controller
@@ -90,6 +92,7 @@ Options:
 
 Examples:
   bun orcs serve
+  bun orcs dev
   bun orcs routes
   bun orcs test
   bun orcs make:controller UserController

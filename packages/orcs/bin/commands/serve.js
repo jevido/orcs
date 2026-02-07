@@ -1,5 +1,5 @@
 /**
- * Serve command - starts the HTTP server
+ * Serve command - starts the HTTP server (production)
  */
 
 // Import from user's project directory, not framework

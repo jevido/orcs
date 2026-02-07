@@ -12,15 +12,24 @@
         "@jevido/orcs": "workspace:*",
       },
     },
+    "packages/create-orcs-app": {
+      "name": "@jevido/create-orcs-app",
+      "version": "0.2.4",
+      "bin": {
+        "create-orcs-app": "./bin/create-orcs-app.js",
+      },
+    },
     "packages/orcs": {
       "name": "@jevido/orcs",
-      "version": "0.1.0",
+      "version": "0.1.4",
       "bin": {
         "orcs": "./bin/orcs.js",
       },
     },
   },
   "packages": {
+    "@jevido/create-orcs-app": ["@jevido/create-orcs-app@workspace:packages/create-orcs-app"],
+
     "@jevido/orcs": ["@jevido/orcs@workspace:packages/orcs"],
 
     "orcs-example": ["orcs-example@workspace:example"],
