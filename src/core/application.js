@@ -28,7 +28,7 @@ export class Application {
     const configPath = this.#basePath + "/config";
 
     try {
-      const [appConfig, httpConfig, openapiConfig, authConfig] =
+      const [appConfig, httpConfig, openapiConfig, authConfig, loggingConfig] =
         await Promise.all([
           import(configPath + "/app.js").then((m) => m.default),
           import(configPath + "/http.js").then((m) => m.default),
@@ -36,6 +36,9 @@ export class Application {
           import(configPath + "/auth.js")
             .then((m) => m.default)
             .catch(() => ({})), // Auth config is optional
+          import(configPath + "/logging.js")
+            .then((m) => m.default)
+            .catch(() => ({})), // Logging config is optional
         ]);
 
       this.#config = new ConfigRepository({
@@ -43,6 +46,7 @@ export class Application {
         http: httpConfig,
         openapi: openapiConfig,
         auth: authConfig,
+        logging: loggingConfig,
       });
 
       // Push OpenAPI info to the registry

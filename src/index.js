@@ -24,3 +24,13 @@ export { Authenticator } from "./auth/authenticator.js";
 export { JwtGuard } from "./auth/guards/jwt-guard.js";
 export { ApiTokenGuard } from "./auth/guards/api-token-guard.js";
 export { auth, requireGuards, requireAnyGuard } from "./auth/middleware.js";
+export {
+  Logger,
+  getLogger,
+  setLogger,
+  debug,
+  info,
+  warn,
+  error,
+} from "./logging/logger.js";
+export { requestLogger, accessLog } from "./logging/middleware.js";
