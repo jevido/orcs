@@ -25,18 +25,22 @@ Inspired by Laravel's structure and developer experience. Powered by Bun. Zero e
 
 ## Quick Start
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/orcs.git
-cd orcs
+### Create a New Project
 
-# Install dependencies (none!)
+```bash
+# Create a new ORCS project
+bunx @jevido/create-orcs-app my-api
+
+# Navigate to your project
+cd my-api
+
+# Set your GitHub token for package installation
+export GITHUB_TOKEN=your_github_token_here
+
+# Install dependencies
 bun install
 
-# Copy environment file
-cp .env.example .env
-
-# Start the server
+# Start the development server
 bun run dev
 ```
 
@@ -45,11 +49,32 @@ Visit:
 - **Docs**: http://localhost:42069/docs
 - **OpenAPI Spec**: http://localhost:42069/openapi.json
 
+### Authentication Setup
+
+ORCS is distributed via GitHub Packages. You'll need a GitHub Personal Access Token:
+
+1. Go to https://github.com/settings/tokens
+2. Generate a new token with `read:packages` scope
+3. Set it in your environment: `export GITHUB_TOKEN=your_token_here`
+4. Or add it to your project's `.env` file
+
+### CLI Commands
+
+```bash
+bun orcs serve              # Start the server
+bun orcs routes             # List all routes
+bun orcs make:controller    # Generate a controller
+bun orcs make:middleware    # Generate middleware
+bun orcs make:migration     # Generate a migration
+bun orcs db:migrate         # Run migrations
+bun orcs queue:work         # Start queue worker
+```
+
 ## Your First Route
 
 ```js
 // routes/api.js
-import { Route } from "./src/index.js";
+import { Route } from "@jevido/orcs";
 
 Route.get(
   "/api/hello",
@@ -65,10 +90,30 @@ Route.get(
 
 That's it! Your route is live, validated, and documented.
 
-## Project Structure
+## Repository Structure
+
+This is a monorepo containing:
 
 ```
 orcs/
+├── packages/
+│   ├── orcs/                 # Framework package (@jevido/orcs)
+│   │   ├── src/             # Framework internals
+│   │   ├── bin/             # CLI commands
+│   │   └── tests/           # Framework tests
+│   └── create-orcs-app/      # Project scaffolder
+│       ├── bin/             # CLI tool
+│       └── templates/       # Project templates
+├── example/                  # Example application
+└── docs/                     # Documentation
+```
+
+## User Project Structure
+
+When you create a new project with `create-orcs-app`, you get:
+
+```
+my-api/
 ├── app/                      # Your application code
 │   ├── controllers/          # Route handlers
 │   ├── middleware/           # Custom middleware
@@ -78,13 +123,12 @@ orcs/
 ├── bootstrap/                # Application bootstrap
 ├── config/                   # Configuration files
 ├── routes/                   # Route definitions
-│   ├── api.js               # API routes (/api prefix)
+│   ├── api.js               # API routes
 │   └── websocket.js         # WebSocket routes
 ├── database/                 # Database files
 │   └── migrations/          # Database migrations
-├── docs/                     # Documentation
-├── src/                      # Framework internals
-├── tests/                    # Test files
+├── .env                      # Environment variables
+├── .npmrc                    # Package registry config
 └── server.js                # Entry point
 ```
 
@@ -250,7 +294,7 @@ import {
   HttpException,
   ValidationException,
   ExceptionHandler,
-} from "./src/index.js";
+} from "@jevido/orcs";
 ```
 
 ## Roadmap
@@ -265,6 +309,8 @@ import {
 - [x] Background job queue
 - [x] S3 support
 - [x] Documentation organization
+- [x] Framework distribution via GitHub Packages
+- [x] Project scaffolder (`create-orcs-app`)
 
 ## Testing
 

@@ -15,13 +15,26 @@ For convenience, you can create a shell alias to run `orcs` without typing `bun`
 Add to your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-alias orcs="bun $(pwd)/bin/orcs.js"
+alias orcs="bun orcs"
 ```
 
 Or for a global alias that works in any ORCS project:
 
 ```bash
-alias orcs="bun bin/orcs.js"
+# Detect your shell and add the alias
+if [ -f ~/.zshrc ]; then
+  echo 'alias orcs="bun orcs"' >> ~/.zshrc
+  source ~/.zshrc
+  echo "✅ Added to ~/.zshrc"
+elif [ -f ~/.bashrc ]; then
+  echo 'alias orcs="bun orcs"' >> ~/.bashrc
+  source ~/.bashrc
+  echo "✅ Added to ~/.bashrc"
+fi
+
+# Test it
+orcs --help
+
 ```
 
 Then reload your shell:

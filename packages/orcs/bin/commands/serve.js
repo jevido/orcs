@@ -2,7 +2,8 @@
  * Serve command - starts the HTTP server
  */
 
-import { boot } from "../../bootstrap/app.js";
+// Import from user's project directory, not framework
+const { boot } = await import(process.cwd() + "/bootstrap/app.js");
 
 export default async function serve(args) {
   console.log("🚀 Starting ORCS server...\n");
