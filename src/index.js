@@ -37,3 +37,10 @@ export { requestLogger, accessLog } from "./logging/middleware.js";
 export { WebSocketManager } from "./websocket/manager.js";
 export { WebSocketRoute, ws } from "./websocket/route.js";
 export { WebSocketAuthenticator } from "./websocket/authenticator.js";
+export { Job } from "./queue/job.js";
+export {
+  QueueManager,
+  getQueueManager,
+  setQueueManager,
+} from "./queue/queue-manager.js";
+export { Worker } from "./queue/worker.js";

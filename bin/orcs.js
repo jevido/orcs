@@ -20,6 +20,9 @@ const commands = {
   "db:rollback": () => import("./commands/db-rollback.js"),
   "db:reset": () => import("./commands/db-reset.js"),
   "db:status": () => import("./commands/db-status.js"),
+  "queue:work": () => import("./commands/queue-work.js"),
+  "queue:stats": () => import("./commands/queue-stats.js"),
+  "queue:clear": () => import("./commands/queue-clear.js"),
 };
 
 async function main() {
@@ -78,6 +81,9 @@ Commands:
   db:rollback           Rollback last batch of migrations
   db:reset              Reset all migrations
   db:status             Show migration status
+  queue:work            Start queue worker to process jobs
+  queue:stats           Show queue statistics
+  queue:clear           Clear all jobs from a queue
 
 Options:
   -h, --help           Show this help message

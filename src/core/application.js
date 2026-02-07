@@ -14,6 +14,8 @@ export class Application {
     this.#config = new ConfigRepository();
     this.exceptionHandler = new ExceptionHandler();
     this.authenticator = null;
+    this.queueManager = null;
+    this.jobRegistry = new Map();
   }
 
   get basePath() {
@@ -35,6 +37,7 @@ export class Application {
         authConfig,
         loggingConfig,
         websocketConfig,
+        queueConfig,
       ] = await Promise.all([
         import(configPath + "/app.js").then((m) => m.default),
         import(configPath + "/http.js").then((m) => m.default),
@@ -48,6 +51,9 @@ export class Application {
         import(configPath + "/websocket.js")
           .then((m) => m.default)
           .catch(() => ({})), // WebSocket config is optional
+        import(configPath + "/queue.js")
+          .then((m) => m.default)
+          .catch(() => ({})), // Queue config is optional
       ]);
 
       this.#config = new ConfigRepository({
@@ -57,6 +63,7 @@ export class Application {
         auth: authConfig,
         logging: loggingConfig,
         websocket: websocketConfig,
+        queue: queueConfig,
       });
 
       // Push OpenAPI info to the registry
@@ -78,8 +85,33 @@ export class Application {
   }
 
   async boot() {
+    // Initialize queue manager if configured
+    await this.initializeQueueManager();
+
     for (const provider of this.#providers) {
       await provider.boot();
+    }
+  }
+
+  async initializeQueueManager() {
+    const queueConfig = this.#config.get("queue", {});
+
+    if (queueConfig.driver) {
+      const { QueueManager, setQueueManager } =
+        await import("../queue/queue-manager.js");
+
+      this.queueManager = new QueueManager({
+        driver: queueConfig.driver,
+        logger: this.logger,
+      });
+
+      // Set database connection if using database driver
+      if (queueConfig.driver === "database" && this.db) {
+        this.queueManager.setConnection(this.db);
+      }
+
+      // Set as global instance
+      setQueueManager(this.queueManager);
     }
   }
 
