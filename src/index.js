@@ -44,3 +44,21 @@ export {
   setQueueManager,
 } from "./queue/queue-manager.js";
 export { Worker } from "./queue/worker.js";
+export {
+  S3Storage,
+  getS3Storage,
+  setS3Storage,
+  createS3Storage,
+  s3file,
+  s3upload,
+  s3download,
+  s3delete,
+  s3exists,
+  s3size,
+  s3stat,
+  s3presign,
+  s3list,
+  s3copy,
+  s3move,
+  s3url,
+} from "./storage/s3.js";
