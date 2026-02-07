@@ -1,10 +1,6 @@
-/**
- * ORCS Application Entry Point
- */
 import { boot } from "./bootstrap/app.js";
 
-const { server, app } = await boot();
+const { server } = await boot();
 
-console.log(`🚀 ${app.config.get("app.name")} is running!`);
-console.log(`   URL: ${server.url.origin}`);
-console.log(`   Docs: ${server.url.origin}/docs`);
+console.log(`🚀 ORCS running on ${server.url}`);
+console.log(`📚 Docs: ${server.url}docs`);
