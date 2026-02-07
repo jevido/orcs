@@ -16,6 +16,7 @@ const commands = {
   "make:controller": () => import("./commands/make-controller.js"),
   "make:middleware": () => import("./commands/make-middleware.js"),
   "make:provider": () => import("./commands/make-provider.js"),
+  "make:model": () => import("./commands/make-model.js"),
   "make:migration": () => import("./commands/make-migration.js"),
   "db:migrate": () => import("./commands/db-migrate.js"),
   "db:rollback": () => import("./commands/db-rollback.js"),
@@ -78,6 +79,7 @@ Commands:
   make:controller       Generate a new controller
   make:middleware       Generate a new middleware
   make:provider         Generate a new service provider
+  make:model            Generate a new model
   make:migration        Generate a new migration
   db:migrate            Run pending migrations
   db:rollback           Rollback last batch of migrations
@@ -98,6 +100,7 @@ Examples:
   bun orcs make:controller UserController
   bun orcs make:middleware auth
   bun orcs make:provider CacheServiceProvider
+  bun orcs make:model User
   bun orcs make:migration create_users_table
   bun orcs db:migrate
   bun orcs db:rollback
