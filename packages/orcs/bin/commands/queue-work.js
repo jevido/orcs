@@ -2,7 +2,8 @@
  * Start queue worker to process background jobs
  */
 
-import { boot } from "../../bootstrap/app.js";
+// Import from user's project directory, not framework
+const { boot } = await import(process.cwd() + "/bootstrap/app.js");
 import { Worker } from "../../src/queue/worker.js";
 
 export default async function (args = []) {

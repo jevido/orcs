@@ -1,6 +1,6 @@
 {
   "name": "@jevido/create-orcs-app",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Create ORCS applications",
   "type": "module",
   "bin": {

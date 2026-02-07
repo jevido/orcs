@@ -2,7 +2,8 @@
  * Routes command - displays all registered routes
  */
 
-import { boot } from "../../bootstrap/app.js";
+// Import from user's project directory, not framework
+const { boot } = await import(process.cwd() + "/bootstrap/app.js");
 
 export default async function routes(args) {
   try {

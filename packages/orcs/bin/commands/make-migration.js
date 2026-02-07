@@ -2,7 +2,7 @@
  * make:migration command - generates a new migration file
  */
 
-import { writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { writeFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 export default async function makeMigration(args) {
@@ -16,9 +16,16 @@ export default async function makeMigration(args) {
   }
 
   const name = args[0];
-  const timestamp = Date.now();
-  const fileName = `${timestamp}_${name}.js`;
   const dir = resolve(process.cwd(), "database", "migrations");
+
+  // Get today's date in Y-m-d format
+  const today = new Date();
+  const datePrefix = today.toISOString().split('T')[0]; // YYYY-MM-DD
+
+  // Find existing migrations for today and get the next increment
+  const increment = getNextIncrement(dir, datePrefix);
+
+  const fileName = `${datePrefix}_${increment}_${name}.js`;
   const filePath = resolve(dir, fileName);
 
   // Ensure directory exists
@@ -87,4 +94,34 @@ function toPascalCase(str) {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join("");
+}
+
+function getNextIncrement(dir, datePrefix) {
+  // Ensure directory exists
+  if (!existsSync(dir)) {
+    return 1;
+  }
+
+  try {
+    const files = readdirSync(dir);
+
+    // Find all migrations for today
+    const todayMigrations = files
+      .filter(f => f.startsWith(datePrefix) && f.endsWith('.js'))
+      .map(f => {
+        // Extract increment from filename: YYYY-MM-DD_INCREMENT_name.js
+        const match = f.match(/^\d{4}-\d{2}-\d{2}_(\d+)_/);
+        return match ? parseInt(match[1]) : 0;
+      })
+      .filter(n => !isNaN(n));
+
+    if (todayMigrations.length === 0) {
+      return 1;
+    }
+
+    // Return the next increment
+    return Math.max(...todayMigrations) + 1;
+  } catch (error) {
+    return 1;
+  }
 }
