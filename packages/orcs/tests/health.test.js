@@ -37,6 +37,24 @@ describe("GET /openapi.json", () => {
     expect(doc.paths["/api/health"].get).toBeDefined();
     expect(doc.paths["/api/health"].get.summary).toBe("Health check");
   });
+
+  test("includes security schemes and operation security", async () => {
+    const res = await fetch(`${base}/openapi.json`);
+    expect(res.status).toBe(200);
+
+    const doc = await res.json();
+    expect(doc.components).toBeDefined();
+    expect(doc.components.securitySchemes).toBeDefined();
+    expect(doc.components.securitySchemes.bearerAuth).toBeDefined();
+    expect(doc.components.securitySchemes.bearerAuth.type).toBe("http");
+    expect(doc.components.securitySchemes.bearerAuth.scheme).toBe("bearer");
+
+    expect(doc.paths["/api/test/secure"]).toBeDefined();
+    expect(doc.paths["/api/test/secure"].get).toBeDefined();
+    expect(doc.paths["/api/test/secure"].get.security).toEqual([
+      { bearerAuth: [] },
+    ]);
+  });
 });
 
 describe("404 handling", () => {

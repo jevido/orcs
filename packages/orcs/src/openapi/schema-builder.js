@@ -59,7 +59,43 @@ export function normalizeResponses(responses) {
   return normalized;
 }
 
-export function normalizeParameters(parameters) {
-  if (!parameters || !Array.isArray(parameters)) return undefined;
-  return parameters;
+export function normalizeParameters(parameters, pathParams = []) {
+  if (!parameters) return undefined;
+
+  if (Array.isArray(parameters)) return parameters;
+
+  if (typeof parameters !== "object") return undefined;
+
+  const pathParamSet = new Set(pathParams);
+
+  return Object.entries(parameters)
+    .map(([name, value]) => {
+      if (value === null || value === undefined) return null;
+
+      const {
+        in: location,
+        required,
+        description,
+        schema,
+        ...schemaLike
+      } = value;
+
+      const paramIn =
+        location || (pathParamSet.has(name) ? "path" : "query");
+
+      const param = {
+        name,
+        in: paramIn,
+        required: paramIn === "path" ? true : required === true,
+      };
+
+      if (description) param.description = description;
+
+      const resolvedSchema = schema ||
+        (Object.keys(schemaLike).length > 0 ? schemaLike : undefined);
+      if (resolvedSchema) param.schema = resolvedSchema;
+
+      return param;
+    })
+    .filter(Boolean);
 }

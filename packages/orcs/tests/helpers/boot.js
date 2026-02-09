@@ -35,6 +35,13 @@ export async function boot() {
   app.config.set("openapi", {
     title: "ORCS Test API",
     version: "1.0.0",
+    securitySchemes: {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+    },
   });
 
   // Register route provider

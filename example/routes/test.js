@@ -60,3 +60,17 @@ Route.post(
   },
   (ctx) => ctx.json({ message: "Address added" }, 201),
 );
+
+// Test security metadata
+Route.get(
+  "/api/test/secure",
+  {
+    summary: "Secure test endpoint",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      200: { description: "Secure response" },
+      401: { description: "Unauthorized" },
+    },
+  },
+  (ctx) => ctx.json({ message: "Secure response" }),
+);

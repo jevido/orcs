@@ -85,6 +85,18 @@ export class Application {
           ? { description: openapiConfig.description }
           : {}),
       });
+
+      if (openapiConfig.components) {
+        openApiRegistry.setComponents(openapiConfig.components);
+      }
+
+      if (openapiConfig.securitySchemes) {
+        openApiRegistry.addSecuritySchemes(openapiConfig.securitySchemes);
+      }
+
+      if (openapiConfig.security) {
+        openApiRegistry.setGlobalSecurity(openapiConfig.security);
+      }
     } catch (error) {
       throw new Error(`Failed to load configuration: ${error.message}`);
     }
