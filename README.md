@@ -10,467 +10,213 @@ A Bun-first web framework where your routes **are** your API contract. Every rou
 
 Inspired by Laravel's structure and developer experience. Powered by Bun. Zero external dependencies.
 
-## Principles
+## Features
 
-- **Routes are the contract** — every `Route.get()` defines both the handler and the OpenAPI spec in one declaration
-- **OpenAPI is always in sync** — the spec is generated from your routes, not written separately
-- **Laravel's conventions, JavaScript's simplicity** — familiar directory structure, service providers, middleware pipeline
-- **Bun-only** — no Node polyfills, no compatibility layers, no compromise
-- **Explicit over implicit** — no decorator magic, no reflection, no dependency injection
-- **Zero dependencies** — the framework is entirely self-contained
+- ✅ **Contract-first routing** — routes define both handlers and OpenAPI specs
+- ✅ **Automatic validation** — request bodies validated against your schemas
+- ✅ **Interactive docs** — `/docs` endpoint with Scalar UI
+- ✅ **Database layer** — query builder, migrations, Active Record ORM
+- ✅ **Authentication** — JWT and API tokens with zero dependencies
+- ✅ **Logging** — structured logging with request tracking
+- ✅ **WebSockets** — real-time features with Bun's native WebSocket support
+- ✅ **Job queue** — background processing with memory or database drivers
+- ✅ **S3 storage** — native S3 support for AWS, R2, Spaces, MinIO, and more
+- ✅ **CLI tooling** — code generation, migrations, queue workers
 
 ## Quick Start
 
+### Create a New Project
+
 ```bash
-# Clone and run
+# Create a new ORCS project
+bunx @jevido/create-orcs-app my-api
+
+# Navigate to your project
+cd my-api
+
+# Set your GitHub token for package installation
+export GITHUB_TOKEN=your_github_token_here
+
+# Install dependencies
+bun install
+
+# Start the development server
 bun run dev
 ```
 
 Visit:
+- **API**: http://localhost:42069/api/health
+- **Docs**: http://localhost:42069/docs
+- **OpenAPI Spec**: http://localhost:42069/openapi.json
 
-- `GET http://localhost:42069/api/health` — your first endpoint
-- `GET http://localhost:42069/openapi.json` — your auto-generated OpenAPI spec
+### Authentication Setup
 
-## Project Structure
+ORCS is distributed via GitHub Packages. You'll need a GitHub Personal Access Token:
+
+1. Go to https://github.com/settings/tokens
+2. Generate a new token with `read:packages` scope
+3. Set it in your environment: `export GITHUB_TOKEN=your_token_here`
+4. Or add it to your project's `.env` file
+
+### CLI Commands
+
+```bash
+bun orcs serve              # Start the server
+bun orcs routes             # List all routes
+bun orcs make:controller    # Generate a controller
+bun orcs make:middleware    # Generate middleware
+bun orcs make:migration     # Generate a migration
+bun orcs db:migrate         # Run migrations
+bun orcs queue:work         # Start queue worker
+```
+
+## Your First Route
+
+```js
+// routes/api.js
+import { Route } from "@jevido/orcs";
+
+Route.get(
+  "/api/hello",
+  {
+    summary: "Say hello",
+    responses: {
+      200: { description: "Greeting message" },
+    },
+  },
+  (ctx) => ctx.json({ message: "Hello, ORCS!" }),
+);
+```
+
+That's it! Your route is live, validated, and documented.
+
+## Repository Structure
+
+This is a monorepo containing:
 
 ```
 orcs/
-├── app/                          # Your application code
-│   ├── controllers/              # Route handlers organized by resource
-│   │   └── HealthController.js
-│   ├── middleware/                # Custom middleware
-│   │   └── cors.js
-│   ├── providers/                # Service providers (boot lifecycle)
-│   │   ├── AppServiceProvider.js
-│   │   └── RouteServiceProvider.js
-│   └── exceptions/               # Error handling
-│       └── Handler.js
-│
-├── bootstrap/                    # Application bootstrap
-│   ├── app.js                    # Creates and boots the application
-│   └── providers.js              # Provider registration list
-│
-├── config/                       # Configuration files
-│   ├── app.js                    # App name, environment, URL
-│   ├── http.js                   # Port, timeouts, CORS
-│   └── openapi.js                # OpenAPI document metadata
-│
-├── routes/                       # Route definitions (the contracts)
-│   ├── api.js                    # API routes — auto-prefixed with /api
-│   └── web.js                    # Web routes — no prefix
-│
-├── src/                          # Framework internals
-│   ├── core/                     # Application, ServiceProvider, helpers
-│   ├── config/                   # Configuration loading, env() helper
-│   ├── http/                     # Server, Context, Middleware
-│   ├── routing/                  # Router, RouteCollection, RouteCompiler
-│   ├── openapi/                  # Registry, Generator, SchemaBuilder
-│   └── errors/                   # HttpException, ValidationException, Handler
-│
-├── storage/logs/                 # Application logs
-├── public/                       # Static files
-├── tests/                        # Test files
-├── server.js                     # Entry point
-├── .env.example                  # Environment variable template
-└── package.json
+├── packages/
+│   ├── orcs/                 # Framework package (@jevido/orcs)
+│   │   ├── src/             # Framework internals
+│   │   ├── bin/             # CLI commands
+│   │   └── tests/           # Framework tests
+│   └── create-orcs-app/      # Project scaffolder
+│       ├── bin/             # CLI tool
+│       └── templates/       # Project templates
+├── example/                  # Example application
+└── docs/                     # Documentation
 ```
 
-## Defining Routes
+## User Project Structure
 
-Routes are the single source of truth. Each route declares its handler **and** its OpenAPI metadata in one call.
+When you create a new project with `create-orcs-app`, you get:
 
-### Inline Handlers
+```
+my-api/
+├── app/                      # Your application code
+│   ├── controllers/          # Route handlers
+│   ├── middleware/           # Custom middleware
+│   ├── providers/            # Service providers
+│   ├── jobs/                 # Background jobs
+│   └── exceptions/           # Error handling
+├── bootstrap/                # Application bootstrap
+├── config/                   # Configuration files
+├── routes/                   # Route definitions
+│   ├── api.js               # API routes
+│   └── websocket.js         # WebSocket routes
+├── database/                 # Database files
+│   └── migrations/          # Database migrations
+├── .env                      # Environment variables
+├── .npmrc                    # Package registry config
+└── server.js                # Entry point
+```
+
+## Core Concepts
+
+### Routes are Contracts
+
+Every route defines both behavior and documentation:
 
 ```js
-import { Route } from "./src/index.js";
-
-Route.get(
-  "/api/health",
+Route.post(
+  "/api/users",
   {
-    summary: "Health check",
+    summary: "Create a user",
+    requestBody: {
+      email: { type: "string", format: "email" },
+      name: { type: "string", minLength: 2 },
+    },
     responses: {
-      200: { description: "Service is healthy" },
+      201: { description: "User created" },
+      422: { description: "Validation failed" },
     },
   },
-  (ctx) => ctx.json({ status: "ok" }),
+  UserController.store,
 );
 ```
 
-### With Controllers
+### Controllers Handle Requests
 
 ```js
-import { Route } from "./src/index.js";
-import { UserController } from "../app/controllers/UserController.js";
-
-Route.group({ prefix: "/api/users", tags: ["Users"] }, () => {
-  Route.get(
-    "/",
-    {
-      summary: "List all users",
-      responses: { 200: { description: "User list" } },
-    },
-    UserController.index,
-  );
-
-  Route.post(
-    "/",
-    {
-      summary: "Create a user",
-      requestBody: {
-        email: { type: "string", format: "email" },
-        name: { type: "string", minLength: 1 },
-        password: { type: "string", minLength: 8 },
-      },
-      responses: {
-        201: { description: "User created" },
-        422: { description: "Validation failed" },
-      },
-    },
-    UserController.store,
-  );
-
-  Route.get(
-    "/:id",
-    {
-      summary: "Get user by ID",
-      responses: {
-        200: { description: "User details" },
-        404: { description: "Not found" },
-      },
-    },
-    UserController.show,
-  );
-});
-```
-
-### Route Groups
-
-Groups share a prefix, tags, and middleware:
-
-```js
-Route.group(
-  { prefix: "/api/admin", tags: ["Admin"], middleware: ["auth"] },
-  () => {
-    Route.get(
-      "/dashboard",
-      { summary: "Admin dashboard" },
-      AdminController.index,
-    );
-    Route.get("/users", { summary: "Manage users" }, AdminController.users);
-  },
-);
-```
-
-### Request Body Shorthand
-
-You can pass full OpenAPI `requestBody` or a shorthand object. The shorthand auto-wraps into a proper JSON schema:
-
-```js
-// Shorthand — just the properties
-requestBody: {
-  email: { type: "string", format: "email" },
-  password: { type: "string", minLength: 8 },
-}
-
-// Becomes this OpenAPI spec automatically:
-requestBody: {
-  required: true,
-  content: {
-    "application/json": {
-      schema: {
-        type: "object",
-        properties: {
-          email: { type: "string", format: "email" },
-          password: { type: "string", minLength: 8 },
-        },
-        required: ["email", "password"],
-      },
-    },
-  },
-}
-```
-
-## Controllers
-
-Controllers are classes with static methods. Each method receives a `ctx` (context) object with everything it needs.
-
-```js
-// app/controllers/UserController.js
-
 export class UserController {
-  static async index(ctx) {
-    const page = ctx.query.page || 1;
-    // fetch users...
-    return ctx.json({ users: [], page });
-  }
-
   static async store(ctx) {
-    const { email, name, password } = ctx.body;
-    // create user...
-    return ctx.json({ id: 1, email, name }, 201);
-  }
-
-  static async show(ctx) {
-    const user = null; // find by ctx.params.id
-    if (!user) ctx.abort(404, "User not found");
-    return ctx.json(user);
+    const { email, name } = ctx.body; // Already validated!
+    const user = await createUser({ email, name });
+    return ctx.json({ user }, 201);
   }
 }
 ```
 
-### The Context Object
-
-Every handler receives `ctx` with:
-
-| Property / Method            | Description                                           |
-| ---------------------------- | ----------------------------------------------------- |
-| `ctx.params`                 | URL path parameters (`/users/:id` -> `ctx.params.id`) |
-| `ctx.query`                  | Query string parameters                               |
-| `ctx.body`                   | Parsed request body (JSON, text)                      |
-| `ctx.headers`                | Request headers as a plain object                     |
-| `ctx.method`                 | HTTP method (GET, POST, etc.)                         |
-| `ctx.path`                   | Request path                                          |
-| `ctx.json(data, status?)`    | Return a JSON response                                |
-| `ctx.text(data, status?)`    | Return a text response                                |
-| `ctx.redirect(url, status?)` | Return a redirect                                     |
-| `ctx.abort(status, message)` | Throw an HTTP exception                               |
-
-Handlers can also return plain values:
-
-- **`Response`** — passed through as-is
-- **`string`** — returned as `text/plain`
-- **`object`** — returned as `application/json`
-- **`undefined`** — returns `204 No Content`
-
-## Middleware
-
-Middleware uses the onion model. Each middleware receives `ctx` and a `next` function.
-
-### Global Middleware
-
-Registered in a service provider, runs on every request:
+### Context Has Everything
 
 ```js
-// app/providers/AppServiceProvider.js
-import { ServiceProvider } from "../../src/core/ServiceProvider.js";
-import { cors } from "../middleware/cors.js";
-
-export class AppServiceProvider extends ServiceProvider {
-  register() {
-    if (this.app.config.get("http.cors.enabled")) {
-      this.app.useGlobalMiddleware([cors(this.app.config.get("http.cors"))]);
-    }
-  }
-}
+ctx.params    // URL parameters
+ctx.query     // Query string
+ctx.body      // Request body (validated)
+ctx.headers   // Request headers
+ctx.user      // Authenticated user (if auth middleware)
+ctx.json()    // Return JSON response
+ctx.abort()   // Throw HTTP exception
 ```
 
-### Named Middleware
+## Documentation
 
-Register middleware by name, then reference it in routes:
+Explore the comprehensive documentation to learn more:
 
-```js
-// In a service provider
-this.app.registerMiddleware({
-  auth: async (ctx, next) => {
-    if (!ctx.headers.authorization) {
-      return ctx.json({ error: "Unauthorized" }, 401);
-    }
-    await next();
-  },
-});
+### Getting Started
+- [Routing](docs/routing.md) — Define routes, controllers, and handle requests
+- [Validation](docs/validation.md) — Automatic request validation
+- [Middleware](docs/middleware.md) — Request processing pipeline
+- [OpenAPI](docs/openapi.md) — Auto-generated API documentation
+- [Configuration](docs/configuration.md) — Environment and config files
+- [Error Handling](docs/error-handling.md) — Structured error responses
 
-// In routes
-Route.group({ prefix: "/api/admin", middleware: ["auth"] }, () => {
-  // These routes require authentication
-});
-```
+### Core Features
+- [Service Providers](docs/service-providers.md) — Application boot lifecycle
+- [CLI Tooling](docs/cli.md) — Commands and code generation
+- [Database](docs/database.md) — Query builder, migrations, and ORM
+- [Authentication](docs/authentication.md) — JWT and API tokens
+- [Logging](docs/logging.md) — Structured logging with request tracking
 
-### Route-Level Middleware
+### Advanced Features
+- [WebSockets](docs/websockets.md) — Real-time communication
+- [Job Queue](docs/queue.md) — Background task processing
+- [S3 Storage](docs/storage.md) — Object storage with S3-compatible services
 
-```js
-Route.use(async (ctx, next) => {
-  console.log(`${ctx.method} ${ctx.path}`);
-  await next();
-});
-```
+## Examples
 
-### Writing Middleware
+Check out the examples in the `app/examples/` directory:
+- [S3 Storage Examples](app/examples/s3-example.js)
 
-```js
-export async function timing(ctx, next) {
-  const start = performance.now();
-  await next();
-  const ms = (performance.now() - start).toFixed(2);
-  console.log(`${ctx.method} ${ctx.path} — ${ms}ms`);
-}
-```
+## Principles
 
-## OpenAPI
-
-OpenAPI is not a bolt-on — it is generated directly from your route definitions.
-
-### Accessing the Spec
-
-The spec is served automatically at:
-
-```
-GET /openapi.json
-```
-
-It returns a complete OpenAPI 3.1.0 document built from every route that includes metadata.
-
-### Programmatic Access
-
-```js
-import { generateOpenApiDocument } from "./src/index.js";
-
-const spec = generateOpenApiDocument();
-console.log(JSON.stringify(spec, null, 2));
-```
-
-### What Gets Included
-
-Any route with a `summary`, `requestBody`, or `responses` in its metadata gets an OpenAPI entry. Routes without metadata (inline handlers with no second argument) are silently skipped.
-
-Path parameters like `:id` are automatically converted to OpenAPI format `{id}`.
-
-## Configuration
-
-Configuration lives in `config/` as plain JavaScript objects with environment variable overrides.
-
-### Config Files
-
-| File                | Purpose               | Key Values                        |
-| ------------------- | --------------------- | --------------------------------- |
-| `config/app.js`     | Application settings  | `name`, `env`, `url`, `debug`     |
-| `config/http.js`    | HTTP server settings  | `port`, `idleTimeout`, `cors`     |
-| `config/openapi.js` | OpenAPI document info | `title`, `version`, `description` |
-
-### The `env()` Helper
-
-```js
-import { env } from "./src/config/env.js";
-
-export default {
-  name: env("APP_NAME", "ORCS"), // string (default: "ORCS")
-  debug: env.bool("APP_DEBUG", true), // boolean
-  port: env.int("PORT", 42069), // integer
-  threshold: env.float("THRESHOLD", 0.5), // float
-  features: env.json("FEATURES", {}), // parsed JSON
-};
-```
-
-### Environment Variables
-
-Copy `.env.example` to `.env` and configure:
-
-```bash
-APP_NAME=ORCS
-APP_ENV=development
-PORT=42069
-CORS_ENABLED=false
-OPENAPI_TITLE="My API"
-```
-
-## Service Providers
-
-Service providers manage the application boot lifecycle. They are registered in `bootstrap/providers.js`.
-
-```js
-import { ServiceProvider } from "../../src/core/ServiceProvider.js";
-
-export class AppServiceProvider extends ServiceProvider {
-  register() {
-    // Called immediately when the provider is registered.
-    // Register middleware, configure services.
-  }
-
-  async boot() {
-    // Called after ALL providers are registered.
-    // Safe to depend on other providers' registrations.
-  }
-}
-```
-
-### Provider Registration
-
-```js
-// bootstrap/providers.js
-import { AppServiceProvider } from "../app/providers/AppServiceProvider.js";
-import { RouteServiceProvider } from "../app/providers/RouteServiceProvider.js";
-
-export default [AppServiceProvider, RouteServiceProvider];
-```
-
-### Boot Sequence
-
-1. `Application` is created
-2. `loadConfig()` — imports all config files, merges with environment
-3. `register()` — each provider's `register()` runs (sync)
-4. `boot()` — each provider's `boot()` runs (async, sequential)
-5. `serve()` — Bun HTTP server starts
-
-## Error Handling
-
-ORCS returns structured JSON errors with consistent formatting.
-
-### Throwing Errors
-
-```js
-import { abort } from "./src/index.js";
-
-// In a handler
-static show(ctx) {
-  const user = findUser(ctx.params.id);
-  if (!user) ctx.abort(404, "User not found");
-  return ctx.json(user);
-}
-
-// Or anywhere
-abort(403, "Access denied");
-```
-
-### Error Response Format
-
-```json
-{
-  "error": "Not Found",
-  "message": "User not found"
-}
-```
-
-Validation errors include field details:
-
-```json
-{
-  "error": "Validation Error",
-  "message": "Validation failed",
-  "errors": {
-    "email": ["must be a valid email"],
-    "password": ["must be at least 8 characters"]
-  }
-}
-```
-
-### Custom Exception Handler
-
-Override the default handler in `app/exceptions/Handler.js`:
-
-```js
-import { ExceptionHandler } from "../../src/errors/Handler.js";
-
-export class AppExceptionHandler extends ExceptionHandler {
-  render(error, ctx) {
-    // Custom formatting, logging, etc.
-    return super.render(error, ctx);
-  }
-}
-```
-
-### Environment-Aware
-
-- **Development**: error responses include stack traces
-- **Production** (`APP_ENV=production`): stack traces are hidden, generic messages for 500s
+- **Routes are the contract** — every `Route.get()` defines both the handler and the OpenAPI spec
+- **OpenAPI is always in sync** — the spec is generated from your routes, not written separately
+- **Laravel's conventions, JavaScript's simplicity** — familiar directory structure, but with modern JS
+- **Bun-only** — no Node polyfills, no compatibility layers, no compromise
+- **Explicit over implicit** — no decorator magic, no reflection, no dependency injection
+- **Zero dependencies** — the framework is entirely self-contained
 
 ## Comparison with Laravel
 
@@ -479,46 +225,114 @@ export class AppExceptionHandler extends ExceptionHandler {
 | Runtime           | PHP                               | Bun                               |
 | Route definitions | `Route::get()` + separate OpenAPI | `Route.get()` with inline OpenAPI |
 | Controllers       | Class with dependency injection   | Class with static methods + ctx   |
-| Models            | Eloquent ORM                      | No ORM (bring your own)           |
-| Configuration     | PHP arrays + `.env`               | JS objects + `env()` helper       |
-| CLI               | `php artisan`                     | Planned: `bun orcs`               |
-| Middleware        | Class-based                       | Function-based (onion model)      |
-| Service providers | Full DI container                 | Boot lifecycle only (no DI)       |
-| Views             | Blade templates                   | N/A (API-first)                   |
-| API docs          | Third-party package               | Built-in (`/openapi.json`)        |
+| Configuration     | PHP arrays + `.env`               | JS objects + `Bun.env`            |
+| CLI               | `php artisan`                     | `bun orcs`                        |
 | Dependencies      | Composer + many packages          | Zero external dependencies        |
 
 ## API Surface
 
 ```js
 import {
-  Application, // App orchestrator
-  ServiceProvider, // Base provider class
-  Route, // Route.get/post/put/patch/delete/group/use
-  Context, // Request context
-  HttpException, // Throwable HTTP error
-  ValidationException, // 422 with field errors
-  ExceptionHandler, // Base error handler
-  env, // Environment variable reader
-  abort, // Throw HTTP exception
-  generateOpenApiDocument, // Get the full OpenAPI spec
-} from "./src/index.js";
+  // Core
+  Application,
+  ServiceProvider,
+  Route,
+  Context,
+  abort,
+
+  // OpenAPI & Validation
+  generateOpenApiDocument,
+  Validator,
+  createValidationMiddleware,
+  createDocsHandler,
+
+  // Database
+  DB,
+  QueryBuilder,
+  Model,
+  Migration,
+  Migrator,
+  getConnection,
+  transaction,
+
+  // Authentication
+  Authenticator,
+  JwtGuard,
+  ApiTokenGuard,
+  auth,
+  requireGuards,
+  requireAnyGuard,
+
+  // Logging
+  Logger,
+  getLogger,
+  debug,
+  info,
+  warn,
+  error,
+  requestLogger,
+  accessLog,
+
+  // WebSockets
+  WebSocketManager,
+  ws,
+
+  // Job Queue
+  Job,
+  QueueManager,
+  Worker,
+
+  // S3 Storage
+  S3Storage,
+  s3upload,
+  s3download,
+  s3file,
+  s3presign,
+  s3list,
+
+  // Errors
+  HttpException,
+  ValidationException,
+  ExceptionHandler,
+} from "@jevido/orcs";
 ```
 
 ## Roadmap
 
-- [ ] Request validation against OpenAPI schemas
-- [ ] `/_docs` endpoint (Swagger UI / Scalar)
-- [ ] CLI tooling (`bun orcs serve`, `bun orcs routes`, `bun orcs make:*`)
-- [ ] Database layer (query builder, migrations, seeds)
-- [ ] Authentication middleware and guards
-- [ ] Logging system with structured output
-- [ ] WebSocket support via Bun
-- [ ] Background job queue
-- [ ] Response caching middleware
+- [x] Request validation against OpenAPI schemas
+- [x] `/docs` endpoint (Swagger UI / Scalar)
+- [x] CLI tooling (`bun orcs serve`, `bun orcs routes`, `bun orcs make:*`)
+- [x] Database layer (query builder, migrations, ORM)
+- [x] Authentication middleware and guards
+- [x] Logging system with structured output
+- [x] WebSocket support via Bun
+- [x] Background job queue
+- [x] S3 support
+- [x] Documentation organization
+- [x] Framework distribution via GitHub Packages
+- [x] Project scaffolder (`create-orcs-app`)
 
-See [todo.md](todo.md) for the full roadmap.
+## Testing
+
+```bash
+# Run all tests
+bun test
+
+# Run specific test
+bun test tests/routing.test.js
+
+# Run with coverage
+bun test --coverage
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
 MIT
+
+---
+
+**Built with [Bun](https://bun.sh) — the all-in-one JavaScript runtime.**

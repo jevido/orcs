@@ -1,2 +1,5 @@
-[install]
-# Keep empty for now
+[workspace]
+members = [
+  "packages/*",
+  "example"
+]

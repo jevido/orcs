@@ -1,0 +1,27 @@
+{
+  "name": "@jevido/orcs",
+  "version": "0.2.3",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jevido/orcs.git"
+  },
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./*": "./src/*"
+  },
+  "bin": {
+    "orcs": "./bin/orcs.js"
+  },
+  "description": "Opinionated Runtime for Contractual Services",
+  "files": [
+    "src",
+    "bin"
+  ],
+  "keywords": ["bun", "framework", "api", "openapi", "contract-first"],
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "type": "module"
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@jevido/create-orcs-app",
+  "version": "0.2.6",
+  "description": "Create ORCS applications",
+  "type": "module",
+  "bin": {
+    "create-orcs-app": "./bin/create-orcs-app.js"
+  },
+  "files": [
+    "bin",
+    "templates"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jevido/orcs.git",
+    "directory": "packages/create-orcs-app"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "keywords": ["orcs", "scaffolding", "cli", "bun"],
+  "author": "jevido",
+  "license": "MIT"
+}
