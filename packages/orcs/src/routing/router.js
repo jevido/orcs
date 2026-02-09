@@ -32,17 +32,7 @@ function resolveMiddleware(names) {
   });
 }
 
-function addRoute(method, path, metaOrHandler, handler) {
-  let meta = {};
-  let routeHandler;
-
-  if (typeof metaOrHandler === "function") {
-    routeHandler = metaOrHandler;
-  } else {
-    meta = metaOrHandler || {};
-    routeHandler = handler;
-  }
-
+function addRoute(method, path, meta, handler) {
   const group = currentGroup();
   const fullPath = group.prefix + path;
   const compiled = compilePath(fullPath);
@@ -52,7 +42,7 @@ function addRoute(method, path, metaOrHandler, handler) {
     method: method.toUpperCase(),
     path: fullPath,
     compiled,
-    handler: routeHandler,
+    handler: handler,
     middleware: routeMiddleware,
     meta: {
       ...meta,
@@ -67,16 +57,11 @@ function addRoute(method, path, metaOrHandler, handler) {
 }
 
 export const Route = {
-  get: (path, metaOrHandler, handler) =>
-    addRoute("GET", path, metaOrHandler, handler),
-  post: (path, metaOrHandler, handler) =>
-    addRoute("POST", path, metaOrHandler, handler),
-  put: (path, metaOrHandler, handler) =>
-    addRoute("PUT", path, metaOrHandler, handler),
-  patch: (path, metaOrHandler, handler) =>
-    addRoute("PATCH", path, metaOrHandler, handler),
-  delete: (path, metaOrHandler, handler) =>
-    addRoute("DELETE", path, metaOrHandler, handler),
+  get: (path, meta, handler) => addRoute("GET", path, meta, handler),
+  post: (path, meta, handler) => addRoute("POST", path, meta, handler),
+  put: (path, meta, handler) => addRoute("PUT", path, meta, handler),
+  patch: (path, meta, handler) => addRoute("PATCH", path, meta, handler),
+  delete: (path, meta, handler) => addRoute("DELETE", path, meta, handler),
 
   group(options, fn) {
     groupStack.push(options);
