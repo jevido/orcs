@@ -30,7 +30,7 @@ export function auth(options = {}) {
       const user = await authenticator.authenticate(ctx, guard);
 
       if (!user && !optional) {
-        throw new HttpException(401, "Unauthenticated");
+        throw new HttpException(401, 'You need to be logged in');
       }
 
       // Attach user to context
@@ -44,6 +44,7 @@ export function auth(options = {}) {
       }
 
       if (!optional) {
+        console.error(error)
         throw new HttpException(401, "Unauthenticated");
       }
 

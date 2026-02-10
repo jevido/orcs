@@ -40,6 +40,15 @@ function loadEnv(filePath) {
     if (process.env[key] === undefined) {
       process.env[key] = value;
     }
+
+    // Keep Bun.env in sync for config files that read Bun.env
+    if (typeof Bun !== "undefined" && Bun.env && Bun.env[key] === undefined) {
+      try {
+        Bun.env[key] = value;
+      } catch {
+        // Ignore if Bun.env is read-only in this runtime
+      }
+    }
   }
 }
 

@@ -6,6 +6,7 @@ Route.group({ prefix: "/api", tags: ["General"] }, () => {
     "/health",
     {
       summary: "Health check",
+      description: "Returns the current health status of the service.",
       responses: {
         200: { description: "Service is healthy" },
       },

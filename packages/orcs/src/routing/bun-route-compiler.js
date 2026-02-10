@@ -14,15 +14,20 @@ export function compileToBunRoutes(
   const routes = {};
   const allRoutes = routeCollection.all();
 
-  // Group routes by path
+  // Group routes by path (normalized for Bun param name constraints)
   const pathGroups = new Map();
 
   for (const route of allRoutes) {
-    const path = route.path;
-    if (!pathGroups.has(path)) {
-      pathGroups.set(path, []);
+    const { path: bunPath, paramAliases } = normalizePathForBun(route.path);
+    const routeForBun = {
+      ...route,
+      bunPath,
+      paramAliases,
+    };
+    if (!pathGroups.has(bunPath)) {
+      pathGroups.set(bunPath, []);
     }
-    pathGroups.get(path).push(route);
+    pathGroups.get(bunPath).push(routeForBun);
   }
 
   // Build Bun routes object
@@ -58,7 +63,7 @@ function createBunHandler(route, globalMiddleware, app) {
     // Build ORCS context
     const ctx = new Context({
       req,
-      params: req.params || {}, // Bun populates this automatically
+      params: normalizeParams(req.params || {}, route.paramAliases), // Bun populates this automatically
       query,
       body,
       headers: Object.fromEntries(req.headers.entries()),
@@ -66,7 +71,7 @@ function createBunHandler(route, globalMiddleware, app) {
     });
 
     // Build middleware stack with automatic validation
-    const middleware = [...globalMiddleware];
+    const middleware = [...globalMiddleware, ...route.middleware];
 
     // Auto-inject validation middleware if route has requestBody
     if (route.meta?.requestBody) {
@@ -78,15 +83,49 @@ function createBunHandler(route, globalMiddleware, app) {
       }
     }
 
-    // Add route-specific middleware
-    middleware.push(...route.middleware);
-
     // Compose and execute middleware + handler
     const dispatch = compose(middleware, route.handler);
     const result = await dispatch(ctx);
 
     return coerceResponse(result);
   };
+}
+
+function normalizePathForBun(path) {
+  const segments = path.split("/");
+  const seen = new Map();
+  const paramAliases = [];
+
+  const normalized = segments.map((segment) => {
+    if (!segment.startsWith(":")) return segment;
+
+    const name = segment.slice(1);
+    const count = seen.get(name) || 0;
+    seen.set(name, count + 1);
+
+    if (count === 0) {
+      paramAliases.push({ alias: name, name });
+      return segment;
+    }
+
+    const alias = `${name}__${count + 1}`;
+    paramAliases.push({ alias, name });
+    return `:${alias}`;
+  });
+
+  return { path: normalized.join("/"), paramAliases };
+}
+
+function normalizeParams(params, paramAliases) {
+  if (!paramAliases || paramAliases.length === 0) return params;
+
+  const normalized = {};
+  for (const { alias, name } of paramAliases) {
+    if (Object.prototype.hasOwnProperty.call(params, alias)) {
+      normalized[name] = params[alias];
+    }
+  }
+  return normalized;
 }
 
 function parseQuery(searchParams) {

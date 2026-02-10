@@ -5,6 +5,7 @@ Route.post(
   "/api/test/users",
   {
     summary: "Create a test user",
+    description: "Creates a user payload for validation testing.",
     requestBody: {
       email: { type: "string", format: "email" },
       name: { type: "string", minLength: 2, maxLength: 50 },
@@ -26,6 +27,7 @@ Route.post(
   "/api/test/profile",
   {
     summary: "Update profile",
+    description: "Updates optional profile fields for validation testing.",
     requestBody: {
       schema: {
         type: "object",
@@ -48,6 +50,7 @@ Route.post(
   "/api/test/address",
   {
     summary: "Add address",
+    description: "Adds an address payload for validation testing.",
     requestBody: {
       street: { type: "string", minLength: 1 },
       city: { type: "string", minLength: 1 },

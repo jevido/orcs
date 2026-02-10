@@ -9,7 +9,7 @@ const groupStack = [];
 
 function currentGroup() {
   if (groupStack.length === 0) return { prefix: "", tags: [], middleware: [] };
-
+  
   return groupStack.reduce(
     (merged, group) => ({
       prefix: merged.prefix + (group.prefix || ""),
@@ -65,8 +65,19 @@ export const Route = {
 
   group(options, fn) {
     groupStack.push(options);
-    fn();
-    groupStack.pop();
+    try {
+      const result = fn();
+      if (result && typeof result.then === "function") {
+        return result.finally(() => {
+          groupStack.pop();
+        });
+      }
+      groupStack.pop();
+      return result;
+    } catch (error) {
+      groupStack.pop();
+      throw error;
+    }
   },
 
   use(fn) {

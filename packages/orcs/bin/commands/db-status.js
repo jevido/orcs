@@ -4,10 +4,17 @@
 
 import { Migrator } from "../../src/database/migrator.js";
 import { closeConnection } from "../../src/database/connection.js";
+import { Application } from "../../src/core/application.js";
 
 export default async function dbStatus(args) {
   try {
-    const migrator = new Migrator();
+    const app = new Application({ basePath: process.cwd() });
+    await app.loadConfig();
+    const migrationsPath = app.config.get(
+      "database.migrations",
+      "database/migrations",
+    );
+    const migrator = new Migrator(migrationsPath);
     const status = await migrator.status();
 
     if (status.length === 0) {

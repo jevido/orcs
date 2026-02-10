@@ -4,6 +4,7 @@
 
 import { Migrator } from "../../src/database/migrator.js";
 import { closeConnection } from "../../src/database/connection.js";
+import { Application } from "../../src/core/application.js";
 
 export default async function dbRollback(args) {
   const steps = args[0] ? parseInt(args[0]) : 1;
@@ -11,7 +12,13 @@ export default async function dbRollback(args) {
   console.log(`\n🔄 Rolling back last ${steps} batch(es)...\n`);
 
   try {
-    const migrator = new Migrator();
+    const app = new Application({ basePath: process.cwd() });
+    await app.loadConfig();
+    const migrationsPath = app.config.get(
+      "database.migrations",
+      "database/migrations",
+    );
+    const migrator = new Migrator(migrationsPath);
     const { rolledBack } = await migrator.rollback(steps);
 
     if (rolledBack.length === 0) {

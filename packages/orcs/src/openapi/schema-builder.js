@@ -60,15 +60,40 @@ export function normalizeResponses(responses) {
 }
 
 export function normalizeParameters(parameters, pathParams = []) {
-  if (!parameters) return undefined;
+  const pathParamSet = new Set(pathParams);
 
-  if (Array.isArray(parameters)) return parameters;
+  if (!parameters) {
+    if (pathParams.length === 0) return undefined;
+    return pathParams.map((name) => ({
+      name,
+      in: "path",
+      required: true,
+      schema: { type: "string" },
+    }));
+  }
+
+  if (Array.isArray(parameters)) {
+    const existing = new Set(
+      parameters
+        .filter((param) => param && param.in === "path")
+        .map((param) => param.name),
+    );
+    const missing = pathParams.filter((name) => !existing.has(name));
+    if (missing.length === 0) return parameters;
+    return [
+      ...parameters,
+      ...missing.map((name) => ({
+        name,
+        in: "path",
+        required: true,
+        schema: { type: "string" },
+      })),
+    ];
+  }
 
   if (typeof parameters !== "object") return undefined;
 
-  const pathParamSet = new Set(pathParams);
-
-  return Object.entries(parameters)
+  const normalized = Object.entries(parameters)
     .map(([name, value]) => {
       if (value === null || value === undefined) return null;
 
@@ -98,4 +123,20 @@ export function normalizeParameters(parameters, pathParams = []) {
       return param;
     })
     .filter(Boolean);
+
+  const existing = new Set(
+    normalized.filter((param) => param.in === "path").map((param) => param.name),
+  );
+  const missing = pathParams.filter((name) => !existing.has(name));
+  if (missing.length === 0) return normalized;
+
+  return [
+    ...normalized,
+    ...missing.map((name) => ({
+      name,
+      in: "path",
+      required: true,
+      schema: { type: "string" },
+    })),
+  ];
 }

@@ -4,12 +4,19 @@
 
 import { Migrator } from "../../src/database/migrator.js";
 import { closeConnection } from "../../src/database/connection.js";
+import { Application } from "../../src/core/application.js";
 
 export default async function dbReset(args) {
   console.log("\n🔄 Resetting database (rolling back all migrations)...\n");
 
   try {
-    const migrator = new Migrator();
+    const app = new Application({ basePath: process.cwd() });
+    await app.loadConfig();
+    const migrationsPath = app.config.get(
+      "database.migrations",
+      "database/migrations",
+    );
+    const migrator = new Migrator(migrationsPath);
     const { rolledBack } = await migrator.reset();
 
     if (rolledBack.length === 0) {
