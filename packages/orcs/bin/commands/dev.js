@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default async function dev(args) {
-  console.log("🚀 Starting ORCS dev server (hot reload)...\n");
+  console.log("Starting ORCS dev server (hot reload)...\n");
 
   const runner = resolve(__dirname, "_serve-runner.js");
 

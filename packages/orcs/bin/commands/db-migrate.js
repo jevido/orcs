@@ -7,7 +7,7 @@ import { closeConnection } from "../../src/database/connection.js";
 import { Application } from "../../src/core/application.js";
 
 export default async function dbMigrate(args) {
-  console.log("\n🔄 Running migrations...\n");
+  console.log("\nRunning migrations...\n");
 
   try {
     const app = new Application({ basePath: process.cwd() });
@@ -23,7 +23,7 @@ export default async function dbMigrate(args) {
       console.log("");
     } else {
       console.log(
-        `\n✅ Migrated ${migrated.length} migration(s) in batch ${batch}\n`,
+        `\nMigrated ${migrated.length} migration(s) in batch ${batch}\n`,
       );
     }
 

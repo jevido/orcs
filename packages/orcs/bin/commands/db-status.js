@@ -37,7 +37,7 @@ export default async function dbStatus(args) {
     const pending = status.filter((m) => !m.executed);
 
     if (executed.length > 0) {
-      console.log("✅ Executed:\n");
+      console.log("Executed:\n");
       for (const migration of executed) {
         const date = migration.executed_at
           ? new Date(migration.executed_at).toLocaleString()
@@ -51,7 +51,6 @@ export default async function dbStatus(args) {
     }
 
     if (pending.length > 0) {
-      console.log("⏳ Pending:\n");
       for (const migration of pending) {
         console.log(`  ${migration.name}`);
       }
@@ -65,7 +64,7 @@ export default async function dbStatus(args) {
     await closeConnection();
     process.exit(0);
   } catch (error) {
-    console.error(`\n❌ Error: ${error.message}\n`);
+    console.error(`\nError: ${error.message}\n`);
     if (process.env.DEBUG) {
       console.error(error.stack);
     }

@@ -9,7 +9,7 @@ import { Application } from "../../src/core/application.js";
 export default async function dbRollback(args) {
   const steps = args[0] ? parseInt(args[0]) : 1;
 
-  console.log(`\n🔄 Rolling back last ${steps} batch(es)...\n`);
+  console.log(`\nRolling back last ${steps} batch(es)...\n`);
 
   try {
     const app = new Application({ basePath: process.cwd() });
@@ -24,7 +24,7 @@ export default async function dbRollback(args) {
     if (rolledBack.length === 0) {
       console.log("");
     } else {
-      console.log(`\n✅ Rolled back ${rolledBack.length} migration(s)\n`);
+      console.log(`\nRolled back ${rolledBack.length} migration(s)\n`);
     }
 
     await closeConnection();

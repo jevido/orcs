@@ -24,13 +24,13 @@ export class ProcessUploadJob extends Job {
     // - Upload to S3/CDN
     // - Update database
 
-    console.log(`✅ Upload processed: ${filename}`);
+    console.log(`Upload processed: ${filename}`);
   }
 
   /**
    * Handle job failure
    */
   async failed(error) {
-    console.error(`❌ Failed to process upload: ${error.message}`);
+    console.error(`Failed to process upload: ${error.message}`);
   }
 }

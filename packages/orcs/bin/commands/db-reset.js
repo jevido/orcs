@@ -7,7 +7,7 @@ import { closeConnection } from "../../src/database/connection.js";
 import { Application } from "../../src/core/application.js";
 
 export default async function dbReset(args) {
-  console.log("\n🔄 Resetting database (rolling back all migrations)...\n");
+  console.log("\nResetting database (rolling back all migrations)...\n");
 
   try {
     const app = new Application({ basePath: process.cwd() });
@@ -23,7 +23,7 @@ export default async function dbReset(args) {
       console.log("");
     } else {
       console.log(
-        `\n✅ Reset complete. Rolled back ${rolledBack.length} migration(s)\n`,
+        `\nReset complete. Rolled back ${rolledBack.length} migration(s)\n`,
       );
     }
 

@@ -80,7 +80,7 @@ export class Migrator {
     const pending = await this.getPendingMigrations();
 
     if (pending.length === 0) {
-      console.log("✅ No pending migrations");
+      console.log("No pending migrations");
       return { migrated: [], batch: 0 };
     }
 
@@ -113,9 +113,9 @@ export class Migrator {
         });
 
         migrated.push(migration.name);
-        console.log(`✅ Migrated:  ${migration.name}`);
+        console.log(`Migrated:  ${migration.name}`);
       } catch (error) {
-        console.error(`\n❌ Migration failed: ${migration.name}`);
+        console.error(`\nMigration failed: ${migration.name}`);
         console.error(error.message);
         throw error;
       }
@@ -149,7 +149,7 @@ export class Migrator {
     );
 
     if (result.length === 0) {
-      console.log("✅ No migrations to rollback");
+      console.log("No migrations to rollback");
       return { rolledBack: [] };
     }
 
@@ -184,9 +184,9 @@ export class Migrator {
         });
 
         rolledBack.push(migration.name);
-        console.log(`✅ Rolled back: ${migration.name}`);
+        console.log(`Rolled back: ${migration.name}`);
       } catch (error) {
-        console.error(`\n❌ Rollback failed: ${migration.name}`);
+        console.error(`\nRollback failed: ${migration.name}`);
         console.error(error.message);
         throw error;
       }
@@ -201,7 +201,7 @@ export class Migrator {
   async reset() {
     const executed = await this.getExecutedMigrations();
     if (executed.length === 0) {
-      console.log("✅ No migrations to reset");
+      console.log("No migrations to reset");
       return { rolledBack: [] };
     }
 

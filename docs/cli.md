@@ -25,11 +25,11 @@ Or for a global alias that works in any ORCS project:
 if [ -f ~/.zshrc ]; then
   echo 'alias orcs="bun orcs"' >> ~/.zshrc
   source ~/.zshrc
-  echo "✅ Added to ~/.zshrc"
+  echo "Added to ~/.zshrc"
 elif [ -f ~/.bashrc ]; then
   echo 'alias orcs="bun orcs"' >> ~/.bashrc
   source ~/.bashrc
-  echo "✅ Added to ~/.bashrc"
+  echo "Added to ~/.bashrc"
 fi
 
 # Test it

@@ -7,7 +7,7 @@ import { resolve } from "node:path";
 
 export default async function makeMigration(args) {
   if (args.length === 0) {
-    console.error("\n❌ Migration name is required");
+    console.error("\nMigration name is required");
     console.log("\nUsage: bun orcs make:migration <name>\n");
     console.log("Examples:");
     console.log("  bun orcs make:migration create_users_table");
@@ -39,11 +39,11 @@ export default async function makeMigration(args) {
   // Write file
   try {
     writeFileSync(filePath, content, "utf-8");
-    console.log(`\n✅ Migration created: ${filePath}`);
+    console.log(`\nMigration created: ${filePath}`);
     console.log(`\nRun the migration:`);
     console.log(`  bun orcs db:migrate\n`);
   } catch (error) {
-    console.error(`\n❌ Failed to create migration: ${error.message}\n`);
+    console.error(`\nFailed to create migration: ${error.message}\n`);
     process.exit(1);
   }
 }

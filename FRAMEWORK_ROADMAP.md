@@ -296,12 +296,12 @@ Create separate repos for clarity:
 
 ## Success Criteria
 
-✅ Users can run: `bunx create-orcs-app my-app`
-✅ Generated project has ORCS as a dependency in package.json
-✅ Generated project imports from `orcs`, not local paths
-✅ Framework can be updated independently: `bun update orcs`
-✅ Documentation clearly shows how to start new projects
-✅ Example app demonstrates framework usage without being part of it
+Users can run: `bunx create-orcs-app my-app`
+Generated project has ORCS as a dependency in package.json
+Generated project imports from `orcs`, not local paths
+Framework can be updated independently: `bun update orcs`
+Documentation clearly shows how to start new projects
+Example app demonstrates framework usage without being part of it
 
 ## Breaking Changes to Consider
 

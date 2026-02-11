@@ -22,14 +22,14 @@ export class SendEmailJob extends Job {
     // In production, use an email service:
     // await sendEmail({ to, subject, body });
 
-    console.log(`✅ Email sent to ${to}`);
+    console.log(`Email sent to ${to}`);
   }
 
   /**
    * Handle job failure
    */
   async failed(error) {
-    console.error(`❌ Failed to send email: ${error.message}`);
+    console.error(`Failed to send email: ${error.message}`);
 
     // Could log to monitoring service, send alert, etc.
   }

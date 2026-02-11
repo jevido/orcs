@@ -88,7 +88,7 @@ async function main() {
 
   // Check if command exists
   if (!commands[commandName]) {
-    console.error(`\n❌ Unknown command: ${commandName}\n`);
+    console.error(`\nUnknown command: ${commandName}\n`);
     showHelp();
     process.exit(1);
   }
@@ -98,7 +98,7 @@ async function main() {
     const { default: command } = await commands[commandName]();
     await command(commandArgs);
   } catch (error) {
-    console.error(`\n❌ Error executing command: ${error.message}\n`);
+    console.error(`\nError executing command: ${error.message}\n`);
     if (process.env.DEBUG) {
       console.error(error.stack);
     }

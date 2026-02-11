@@ -7,7 +7,7 @@ import { resolve, dirname } from "node:path";
 
 export default async function makeMiddleware(args) {
   if (args.length === 0) {
-    console.error("\n❌ Middleware name is required");
+    console.error("\nMiddleware name is required");
     console.log("\nUsage: bun orcs make:middleware <name>\n");
     console.log("Examples:");
     console.log("  bun orcs make:middleware auth");
@@ -31,7 +31,7 @@ export default async function makeMiddleware(args) {
 
   // Check if file already exists
   if (existsSync(filePath)) {
-    console.error(`\n❌ Middleware already exists: ${filePath}\n`);
+    console.error(`\nMiddleware already exists: ${filePath}\n`);
     process.exit(1);
   }
 
@@ -48,7 +48,7 @@ export default async function makeMiddleware(args) {
   // Write file
   try {
     writeFileSync(filePath, content, "utf-8");
-    console.log(`\n✅ Middleware created: ${filePath}`);
+    console.log(`\nMiddleware created: ${filePath}`);
     console.log(
       `\nRegister globally in app/providers/app-service-provider.js:`,
     );
@@ -61,7 +61,7 @@ export default async function makeMiddleware(args) {
     console.log(`\nThen use in routes:`);
     console.log(`Route.group({ middleware: ["${name}"] }, () => { ... });\n`);
   } catch (error) {
-    console.error(`\n❌ Failed to create middleware: ${error.message}\n`);
+    console.error(`\nFailed to create middleware: ${error.message}\n`);
     process.exit(1);
   }
 }

@@ -4,12 +4,12 @@ Use GitHub Packages registry to distribute ORCS framework. Free, integrated with
 
 ## Why GitHub Packages?
 
-- ✅ Free for public packages
-- ✅ Integrated with GitHub (same permissions, releases, etc.)
-- ✅ Works with Bun's package manager
-- ✅ Private packages included with GitHub subscription
-- ✅ No separate registry account needed
-- ✅ Scoped to your GitHub username/org
+- Free for public packages
+- Integrated with GitHub (same permissions, releases, etc.)
+- Works with Bun's package manager
+- Private packages included with GitHub subscription
+- No separate registry account needed
+- Scoped to your GitHub username/org
 
 ## How GitHub Packages Works
 
@@ -62,9 +62,9 @@ orcs/                               # Main repo
    Click: "Generate new token (classic)"
 
    Scopes needed:
-   - ✅ `write:packages` - Upload packages
-   - ✅ `read:packages` - Download packages
-   - ✅ `delete:packages` - Delete packages (optional)
+   - `write:packages` - Upload packages
+   - `read:packages` - Download packages
+   - `delete:packages` - Delete packages (optional)
 
    Save token somewhere safe: `ghp_xxxxxxxxxxxxxxxxxxxx`
 
@@ -269,7 +269,7 @@ try {
 
 // Success message
 console.log(`
-✅ Created ${projectName}
+Created ${projectName}
 
 Next steps:
   cd ${projectName}
@@ -567,7 +567,7 @@ ORCS is distributed via GitHub Packages, which requires authentication:
 1. Go to: https://github.com/settings/tokens
 2. Click "Generate new token (classic)"
 3. Give it a name: "ORCS Package Access"
-4. Select scope: ✅ `read:packages`
+4. Select scope: `read:packages`
 5. Click "Generate token"
 6. Copy the token: `ghp_xxxxxxxxxxxxxxxxxxxx`
 

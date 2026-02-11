@@ -2,38 +2,72 @@
  * Serve command - starts the HTTP server (production)
  */
 
-// Import from user's project directory, not framework
-const { boot } = await import(process.cwd() + "/bootstrap/app.js");
+import { spawn } from "bun";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default async function serve(args) {
-  console.log("🚀 Starting ORCS server...\n");
+  const runner = resolve(__dirname, "_serve-worker.js");
+  const hardwareThreads = navigator.hardwareConcurrency || 1;
+  const requestedWorkers = Number.parseInt(
+    process.env.ORCS_CLUSTER_WORKERS ?? "",
+    10,
+  );
+  const workerCount =
+    Number.isInteger(requestedWorkers) && requestedWorkers > 0
+      ? requestedWorkers
+      : hardwareThreads;
 
-  try {
-    const { server, app } = await boot();
+  console.log(
+    `Starting ORCS server (cluster mode: ${workerCount} workers)...\n`,
+  );
 
-    const port = app.config.get("http.port", 3000);
-    const env = app.config.get("app.env", "development");
-    const appName = app.config.get("app.name", "ORCS");
+  const workers = new Array(workerCount);
+  let shuttingDown = false;
 
-    console.log(`✅ ${appName} is running!`);
-    console.log(``);
-    console.log(`   Environment: ${env}`);
-    console.log(`   Port:        ${port}`);
-    console.log(`   URL:         ${server.url.origin}`);
-    console.log(``);
-    console.log(`   Health:      ${server.url.origin}/api/health`);
-    console.log(`   Docs:        ${server.url.origin}/docs`);
-    console.log(`   OpenAPI:     ${server.url.origin}/openapi.json`);
-    console.log(``);
-    console.log(`Press Ctrl+C to stop\n`);
+  const spawnWorker = (index) => {
+    const worker = spawn(["bun", runner], {
+      cwd: process.cwd(),
+      stdio: ["inherit", "inherit", "inherit"],
+      env: {
+        ...process.env,
+        ORCS_CLUSTER_WORKER: "1",
+        ORCS_CLUSTER_PRIMARY: index === 0 ? "1" : "0",
+      },
+    });
 
-    // Keep the process running
-    await new Promise(() => {});
-  } catch (error) {
-    console.error(`❌ Failed to start server: ${error.message}`);
-    if (process.env.DEBUG) {
-      console.error(error.stack);
-    }
-    process.exit(1);
+    worker.exited.then((code) => {
+      if (shuttingDown) return;
+
+      if (code !== 0) {
+        console.error(`Worker ${index + 1} exited with code ${code}.`);
+        shutdown(code);
+        return;
+      }
+    });
+
+    return worker;
+  };
+
+  for (let index = 0; index < workerCount; index++) {
+    workers[index] = spawnWorker(index);
   }
+
+  const shutdown = (exitCode = 0) => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+
+    for (const worker of workers) {
+      worker?.kill();
+    }
+
+    process.exit(exitCode);
+  };
+
+  process.on("SIGINT", () => shutdown(0));
+  process.on("SIGTERM", () => shutdown(0));
+
+  await Promise.all(workers.map((worker) => worker.exited));
 }

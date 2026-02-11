@@ -47,6 +47,10 @@ export function createServer(app) {
 
   const server = Bun.serve({
     port: app.config.get("http.port", 3000),
+    reusePort: app.config.get(
+      "http.reusePort",
+      process.env.ORCS_CLUSTER_WORKER === "1",
+    ),
     idleTimeout: app.config.get("http.idleTimeout", 60),
 
     // Use Bun's native routes object for optimal performance

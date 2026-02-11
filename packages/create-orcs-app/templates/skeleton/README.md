@@ -21,12 +21,12 @@ Visit http://localhost:42069/docs
 
 This skeleton includes **all ORCS features** ready for you to implement:
 
-- ✅ **Authentication (JWT)** - Routes ready, add database logic
-- ✅ **Database (PostgreSQL)** - Docker Compose + migration structure
-- ✅ **WebSockets** - Echo, Chat, Notifications servers ready
-- ✅ **Background Jobs** - Email, Upload jobs ready to implement
-- ✅ **Middleware** - CORS, Rate limiting
-- ✅ **Docker Services** - PostgreSQL, Redis, MinIO, Mailpit
+- **Authentication (JWT)** - Routes ready, add database logic
+- **Database (PostgreSQL)** - Docker Compose + migration structure
+- **WebSockets** - Echo, Chat, Notifications servers ready
+- **Background Jobs** - Email, Upload jobs ready to implement
+- **Middleware** - CORS, Rate limiting
+- **Docker Services** - PostgreSQL, Redis, MinIO, Mailpit
 
 All controllers have TODO comments showing where to add your logic.
 
@@ -49,10 +49,10 @@ bun orcs queue:work
 ## Skeleton vs Example
 
 This **skeleton** has the same structure as the example app, but:
-- ❌ No example data
-- ✅ TODO comments for implementation
-- ✅ Same routes and features
-- ✅ Production ready
+- No example data
+- TODO comments for implementation
+- Same routes and features
+- Production ready
 
 Want working examples? Choose "Example app" when creating your project.
 

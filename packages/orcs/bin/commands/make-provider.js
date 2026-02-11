@@ -7,7 +7,7 @@ import { resolve, dirname } from "node:path";
 
 export default async function makeProvider(args) {
   if (args.length === 0) {
-    console.error("\n❌ Provider name is required");
+    console.error("\nProvider name is required");
     console.log("\nUsage: bun orcs make:provider <ProviderName>\n");
     console.log("Examples:");
     console.log("  bun orcs make:provider CacheServiceProvider");
@@ -37,7 +37,7 @@ export default async function makeProvider(args) {
 
   // Check if file already exists
   if (existsSync(filePath)) {
-    console.error(`\n❌ Provider already exists: ${filePath}\n`);
+    console.error(`\nProvider already exists: ${filePath}\n`);
     process.exit(1);
   }
 
@@ -53,7 +53,7 @@ export default async function makeProvider(args) {
   // Write file
   try {
     writeFileSync(filePath, content, "utf-8");
-    console.log(`\n✅ Provider created: ${filePath}`);
+    console.log(`\nProvider created: ${filePath}`);
     console.log(`\nRegister in bootstrap/providers.js:`);
     console.log(
       `\nimport { ${providerName} } from "../app/providers/${fileName}.js";`,
@@ -64,7 +64,7 @@ export default async function makeProvider(args) {
     console.log(`  ${providerName}, // Add this line`);
     console.log(`];\n`);
   } catch (error) {
-    console.error(`\n❌ Failed to create provider: ${error.message}\n`);
+    console.error(`\nFailed to create provider: ${error.message}\n`);
     process.exit(1);
   }
 }

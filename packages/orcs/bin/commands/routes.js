@@ -69,7 +69,7 @@ export default async function routes(args) {
     // Stop the server since we're just listing routes
     process.exit(0);
   } catch (error) {
-    console.error(`\n❌ Failed to load routes: ${error.message}\n`);
+    console.error(`\nFailed to load routes: ${error.message}\n`);
     if (process.env.DEBUG) {
       console.error(error.stack);
     }

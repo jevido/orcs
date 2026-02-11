@@ -11,7 +11,7 @@ const port = app.config.get("http.port", 3000);
 const env = app.config.get("app.env", "development");
 const appName = app.config.get("app.name", "ORCS");
 
-console.log(`✅ ${appName} is running!`);
+console.log(`${appName} is running!`);
 console.log(``);
 console.log(`   Environment: ${env}`);
 console.log(`   Port:        ${port}`);

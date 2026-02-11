@@ -7,7 +7,7 @@ import { resolve, dirname } from "node:path";
 
 export default async function makeController(args) {
   if (args.length === 0) {
-    console.error("\n❌ Controller name is required");
+    console.error("\nController name is required");
     console.log("\nUsage: bun orcs make:controller <ControllerName>\n");
     console.log("Examples:");
     console.log("  bun orcs make:controller UserController");
@@ -38,7 +38,7 @@ export default async function makeController(args) {
 
   // Check if file already exists
   if (existsSync(filePath)) {
-    console.error(`\n❌ Controller already exists: ${filePath}\n`);
+    console.error(`\nController already exists: ${filePath}\n`);
     process.exit(1);
   }
 
@@ -54,7 +54,7 @@ export default async function makeController(args) {
   // Write file
   try {
     writeFileSync(filePath, content, "utf-8");
-    console.log(`\n✅ Controller created: ${filePath}`);
+    console.log(`\nController created: ${filePath}`);
     console.log(`\nExample usage in routes/api.js:`);
     console.log(
       `\nimport { ${controllerName} } from "../app/controllers/${fileName}.js";`,
@@ -66,7 +66,7 @@ export default async function makeController(args) {
       `Route.post("/resource", { summary: "Create" }, ${controllerName}.store);\n`,
     );
   } catch (error) {
-    console.error(`\n❌ Failed to create controller: ${error.message}\n`);
+    console.error(`\nFailed to create controller: ${error.message}\n`);
     process.exit(1);
   }
 }

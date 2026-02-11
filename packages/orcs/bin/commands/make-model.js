@@ -7,7 +7,7 @@ import { resolve, dirname } from "node:path";
 
 export default async function makeModel(args) {
   if (args.length === 0) {
-    console.error("\n❌ Model name is required");
+    console.error("\nModel name is required");
     console.log("\nUsage: bun orcs make:model <ModelName>\n");
     console.log("Examples:");
     console.log("  bun orcs make:model User");
@@ -32,7 +32,7 @@ export default async function makeModel(args) {
 
   // Check if file already exists
   if (existsSync(filePath)) {
-    console.error(`\n❌ Model already exists: ${filePath}\n`);
+    console.error(`\nModel already exists: ${filePath}\n`);
     process.exit(1);
   }
 
@@ -48,7 +48,7 @@ export default async function makeModel(args) {
   // Write file
   try {
     writeFileSync(filePath, content, "utf-8");
-    console.log(`\n✅ Model created: ${filePath}`);
+    console.log(`\nModel created: ${filePath}`);
     console.log(`\nUsage:`);
     console.log(
       `\nimport { ${name} } from "../app/models/${fileName}.js";`,
@@ -57,7 +57,7 @@ export default async function makeModel(args) {
     console.log(`const all = await ${name}.all();`);
     console.log(`const created = await ${name}.create({ name: "example" });\n`);
   } catch (error) {
-    console.error(`\n❌ Failed to create model: ${error.message}\n`);
+    console.error(`\nFailed to create model: ${error.message}\n`);
     process.exit(1);
   }
 }

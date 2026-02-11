@@ -7,7 +7,7 @@ import { $ } from "bun";
 const projectName = process.argv[2];
 
 if (!projectName) {
-  console.error("❌ Error: Project name is required\n");
+  console.error("Error: Project name is required\n");
   console.log("Usage: bunx @jevido/create-orcs-app <project-name>\n");
   console.log("Example:");
   console.log("  bunx @jevido/create-orcs-app my-api");
@@ -17,7 +17,7 @@ if (!projectName) {
 const projectPath = join(process.cwd(), projectName);
 
 if (existsSync(projectPath)) {
-  console.error(`❌ Error: Directory "${projectName}" already exists`);
+  console.error(`Error: Directory "${projectName}" already exists`);
   process.exit(1);
 }
 
@@ -53,7 +53,7 @@ if (choice === "2") {
 const templatePath = join(import.meta.dir, `../templates/${templateName}`);
 
 if (!existsSync(templatePath)) {
-  console.error(`❌ Error: Template "${templateName}" not found`);
+  console.error(`Error: Template "${templateName}" not found`);
   process.exit(1);
 }
 
@@ -124,7 +124,7 @@ try {
 // Success message
 if (templateName === "skeleton") {
   console.log(`
-✅ Created ${projectName} (skeleton)
+Created ${projectName} (skeleton)
 
 Your clean ORCS project is ready!
 
@@ -144,7 +144,7 @@ Visit http://localhost:42069/docs
 `);
 } else {
   console.log(`
-✅ Created ${projectName} (example app)
+Created ${projectName} (example app)
 
 Your ORCS project with full examples is ready!
 

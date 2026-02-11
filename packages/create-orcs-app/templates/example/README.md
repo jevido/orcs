@@ -113,10 +113,10 @@ bun start
 
 ## Features Demonstrated
 
-### ✅ RESTful API
+### RESTful API
 Example CRUD operations in [app/controllers/example-controller.js](app/controllers/example-controller.js)
 
-### ✅ Authentication (JWT)
+### Authentication (JWT)
 Login and protected routes in [app/controllers/auth-controller.js](app/controllers/auth-controller.js)
 
 ```bash
@@ -130,10 +130,10 @@ curl http://localhost:42069/api/auth/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-### ✅ Database (PostgreSQL)
+### Database (PostgreSQL)
 Post management with database queries in [app/controllers/post-controller.js](app/controllers/post-controller.js)
 
-### ✅ Migrations
+### Migrations
 Example migrations in [database/migrations/](database/migrations/)
 
 ```bash
@@ -141,7 +141,7 @@ bun orcs make:migration create_products_table
 bun orcs db:migrate
 ```
 
-### ✅ WebSocket (Real-time)
+### WebSocket (Real-time)
 Three working examples in [routes/websocket.js](routes/websocket.js):
 - Echo server
 - Chat room with pub/sub
@@ -154,7 +154,7 @@ ws.onmessage = (e) => console.log(e.data);
 ws.send(JSON.stringify({ user: 'Alice', message: 'Hello!' }));
 ```
 
-### ✅ Background Jobs
+### Background Jobs
 Email and upload processing examples in [app/jobs/](app/jobs/)
 
 ```javascript
@@ -172,14 +172,14 @@ await QueueManager.push(SendEmailJob, {
 bun orcs queue:work
 ```
 
-### ✅ Middleware
+### Middleware
 - CORS handling: [app/middleware/cors-middleware.js](app/middleware/cors-middleware.js)
 - Rate limiting: [app/middleware/rate-limit-middleware.js](app/middleware/rate-limit-middleware.js)
 
-### ✅ Request Validation
+### Request Validation
 Automatic validation from OpenAPI schemas in routes
 
-### ✅ API Documentation
+### API Documentation
 Auto-generated from your routes at `/docs`
 
 ## CLI Commands

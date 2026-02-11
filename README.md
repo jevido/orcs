@@ -12,16 +12,16 @@ Inspired by Laravel's structure and developer experience. Powered by Bun. Zero e
 
 ## Features
 
-- ✅ **Contract-first routing** — routes define both handlers and OpenAPI specs
-- ✅ **Automatic validation** — request bodies validated against your schemas
-- ✅ **Interactive docs** — `/docs` endpoint with Scalar UI
-- ✅ **Database layer** — query builder, migrations, Active Record ORM
-- ✅ **Authentication** — JWT and API tokens with zero dependencies
-- ✅ **Logging** — structured logging with request tracking
-- ✅ **WebSockets** — real-time features with Bun's native WebSocket support
-- ✅ **Job queue** — background processing with memory or database drivers
-- ✅ **S3 storage** — native S3 support for AWS, R2, Spaces, MinIO, and more
-- ✅ **CLI tooling** — code generation, migrations, queue workers
+- **Contract-first routing** — routes define both handlers and OpenAPI specs
+- **Automatic validation** — request bodies validated against your schemas
+- **Interactive docs** — `/docs` endpoint with Scalar UI
+- **Database layer** — query builder, migrations, Active Record ORM
+- **Authentication** — JWT and API tokens with zero dependencies
+- **Logging** — structured logging with request tracking
+- **WebSockets** — real-time features with Bun's native WebSocket support
+- **Job queue** — background processing with memory or database drivers
+- **S3 storage** — native S3 support for AWS, R2, Spaces, MinIO, and more
+- **CLI tooling** — code generation, migrations, queue workers
 
 ## Quick Start
 
